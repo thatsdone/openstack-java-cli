@@ -6,10 +6,12 @@ What is this?
 
 Simply speaking, this is a Java version of OpenStack client program.
 
-It's implemented as a single jar file, and now subsets of nova, keystone and cinder commands are available.
+It's implemented as a single jar file, and now subsets of nova, keystone and
+cinder commands are available.
 
-I began to write this small program for invoking the OpenStack Java SDK API methods
-which I extended mainly. Thus, please do not expect that this program has production quality. :o
+I began to write this small program for invoking the OpenStack Java SDK API
+methods which I extended mainly. Thus, please do not expect production
+quality. :)
 
 Installation
 -------------
@@ -37,12 +39,14 @@ Installation
   ~/.m2/
 </pre>
   Note that the upstream OpenStack Java SDK repository is:
+
     https://github.com/woorea/openstack-java-sdk
 
 
 2. Install openstack-java-cli
 <pre>
- $ git clone https://github.com/thatsdone/openstack-java-cli.git sdk
+ $ git clone https://github.com/thatsdone/openstack-java-cli.git cli
+ $ cd cli
  $ mvn install
 </pre>
 
@@ -56,13 +60,13 @@ Usage
 
 Synopsis is like the following:
 <pre>
-jopst COMPONENTS [COMMON OPTIONS] SUB-COMMAND [SUB-COMMAND SPECIFIC OPTIONS]
+jopst COMPONENT [COMMON OPTIONS] SUB-COMMAND [SUB-COMMAND SPECIFIC OPTIONS]
 </pre>
 
-'jopst' is a simple shell script, and if you want to change versions of dependency libraries,
-please modify that.
+'jopst' is a simple shell script, and if you want to change versions of
+dependency libraries, please modify that.
 
-**COMPONENTS**
+**COMPONENT**
 
 Either of the following (currently):
 
