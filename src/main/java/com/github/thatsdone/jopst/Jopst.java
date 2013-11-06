@@ -64,67 +64,47 @@ import com.woorea.openstack.keystone.Keystone;
 import com.woorea.openstack.keystone.model.Access;
 import com.woorea.openstack.keystone.model.authentication.UsernamePassword;
 import com.woorea.openstack.nova.Nova;
-import com.woorea.openstack.nova.model.Server;
-import com.woorea.openstack.nova.model.Servers;
-import com.woorea.openstack.nova.model.Host;
-import com.woorea.openstack.nova.model.Hosts;
-import com.woorea.openstack.nova.model.Service;
-import com.woorea.openstack.nova.model.Services;
-import com.woorea.openstack.nova.model.Hypervisor;
-import com.woorea.openstack.nova.model.Hypervisors;
-import com.woorea.openstack.nova.model.HypervisorStatistics;
-import com.woorea.openstack.nova.model.HypervisorServers;
-import com.woorea.openstack.nova.model.QuotaSet;
-import com.woorea.openstack.nova.model.SimpleTenantUsage;
-import com.woorea.openstack.nova.model.HostAggregate;
-import com.woorea.openstack.nova.model.HostAggregates;
-import com.woorea.openstack.nova.model.AvailabilityZoneInfo;
-import com.woorea.openstack.nova.model.Flavor;
-import com.woorea.openstack.nova.model.Flavors;
-import com.woorea.openstack.nova.model.Extensions;
-import com.woorea.openstack.nova.model.Images;
-import com.woorea.openstack.nova.model.Volumes;
-import com.woorea.openstack.nova.model.Limits;
-
-import com.woorea.openstack.cinder.Cinder;
-//import com.woorea.openstack.cinder.model.Volumes;
 
 import com.woorea.openstack.keystone.utils.KeystoneUtils;
-//import com.woorea.openstack.nova.api.QuotaSetsResource;
-//import com.woorea.openstack.nova.api.ServersResource;
 
 import java.lang.System;
-import java.io.PrintStream;
 import java.lang.Integer;
+import java.lang.reflect.Method;
 
 import java.util.List;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-
-import java.lang.reflect.Method;
-
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.JavaType;
-//import org.codehaus.jackson.impl.DefaultPrettyPrinter;
 import java.util.logging.*;
-import org.codehaus.jackson.map.annotate.JsonRootName;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonProperty;
 
+import com.github.thatsdone.jopst.Utils;
 
 
 public class Jopst {
 
     private static String commandName = "jopst";
 
+    public static String getCommandName() {
+        return commandName;
+    }
+
     //work around for 'validate'
     private static String adminTokenId;
+
     public static Nova novaClient;
+    private static Utils util;
 
     private static boolean debug = false;
     private static boolean logMessage = false;
+
+    public static boolean isDebug() {
+        return debug;
+    }
+
+    public static boolean isLogMessage() {
+        return logMessage;
+    }
 
     // Get account informatoin from environment variables.
     private static String osAuthUrl = System.getenv("OS_AUTH_URL");
@@ -145,109 +125,71 @@ public class Jopst {
         return osUsername;
     }
 
-    public static Map<String, String> hArray = new LinkedHashMap<String, String>();
+    public static Map<String, String> components =
+        new LinkedHashMap<String, String>();
 
-    public static Map<String, String> cArray = new LinkedHashMap<String, String>();
+    public static Map<String, String> novaCmds =
+        new LinkedHashMap<String, String>();
 
-    public static Map<String, String> cinderCmds = new LinkedHashMap<String, String>();
-    public static Map<String, String> keystoneCmds = new LinkedHashMap<String, String>();
+    public static Map<String, String> cinderCmds =
+        new LinkedHashMap<String, String>();
+    public static Map<String, String> keystoneCmds =
+        new LinkedHashMap<String, String>();
 
-    public static Map<String, Map<String, String>> cmMap = new LinkedHashMap<String, Map<String, String>>();
-
+    public static Map<String, Map<String, String>> cmdMap =
+        new LinkedHashMap<String, Map<String, String>>();
 
     static {
-        cArray.put("list", "server");
-        cArray.put("show", "server");
-        cArray.put("host-list", "host");
-        cArray.put("host-describe", "host");
-        cArray.put("hypervisor-list", "hypervisor");
-        cArray.put("hypervisor-show", "hypervisor");
-        cArray.put("hypervisor-stats", "hypervisor");
-        cArray.put("hypervisor-servers", "hypervisor");
-        cArray.put("service-list", "service");
-        cArray.put("service-enable", "service");
-        cArray.put("service-disable", "service");
-        cArray.put("usage-list", "quotaSet");
-        cArray.put("aggregate-list", "aggregate");
-        cArray.put("aggregate-details", "aggregate");
-        cArray.put("aggregate-create", "aggregate");
-        cArray.put("aggregate-delete", "aggregate");
-        cArray.put("aggregate-add-host", "aggregate");
-        cArray.put("aggregate-remove-host", "aggregate");
-        cArray.put("aggregate-update", "aggregate");
-        cArray.put("aggregate-set-metadata", "aggregate");
-        cArray.put("flavor-list", "flavor");
-        cArray.put("live-migration", "server");
-        cArray.put("availability-zone-list", "availabilityZone");
-        cArray.put("list-extensions", "extensions");
-        cArray.put("image-list", "image");
-        cArray.put("volume-list", "volume");
-        cArray.put("rate-limits", "quotaSet");
-        //        cArray.put("validate", "quotaSet");
-        //        cArray.put("cinder-list", "volumes");
-
-        hArray.put("nova", "Jnova");
-        hArray.put("cinder", "Jcinder");
-        hArray.put("keystone", "Jkeystone");
+        novaCmds.put("list", "server");
+        novaCmds.put("show", "server");
+        novaCmds.put("host-list", "host");
+        novaCmds.put("host-describe", "host");
+        novaCmds.put("hypervisor-list", "hypervisor");
+        novaCmds.put("hypervisor-show", "hypervisor");
+        novaCmds.put("hypervisor-stats", "hypervisor");
+        novaCmds.put("hypervisor-servers", "hypervisor");
+        novaCmds.put("service-list", "service");
+        novaCmds.put("service-enable", "service");
+        novaCmds.put("service-disable", "service");
+        novaCmds.put("usage-list", "quotaSet");
+        novaCmds.put("aggregate-list", "aggregate");
+        novaCmds.put("aggregate-details", "aggregate");
+        novaCmds.put("aggregate-create", "aggregate");
+        novaCmds.put("aggregate-delete", "aggregate");
+        novaCmds.put("aggregate-add-host", "aggregate");
+        novaCmds.put("aggregate-remove-host", "aggregate");
+        novaCmds.put("aggregate-update", "aggregate");
+        novaCmds.put("aggregate-set-metadata", "aggregate");
+        novaCmds.put("flavor-list", "flavor");
+        novaCmds.put("live-migration", "server");
+        novaCmds.put("availability-zone-list", "availabilityZone");
+        novaCmds.put("list-extensions", "extensions");
+        novaCmds.put("image-list", "image");
+        novaCmds.put("volume-list", "volume");
+        novaCmds.put("rate-limits", "quotaSet");
 
         cinderCmds.put("list", "volumes");
+
         keystoneCmds.put("validate", "validate");
 
-        cmMap.put("nova", cArray);
-        cmMap.put("cinder", cinderCmds);
-        cmMap.put("keystone", keystoneCmds);
+        cmdMap.put("nova", novaCmds);
+        cmdMap.put("cinder", cinderCmds);
+        cmdMap.put("keystone", keystoneCmds);
 
+        components.put("nova", "Jnova");
+        components.put("cinder", "Jcinder");
+        components.put("keystone", "Jkeystone");
     }
 
-    public static void printJson(Object o) {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            //System.out.println(mapper.writeValueAsString(o));
-            /*
-              DefaultPrettyPrinter pp = new DefaultPrettyPrinter();
-              pp.indentArrayWith(new Lf2SpacesIndenter());
-              System.out.println(mapper.writer(pp).writeValueAsString(o));
-            */
-            System.out.println(mapper.writerWithDefaultPrettyPrinter()
-                               .writeValueAsString(o));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    public static void printUsage(Map<String, Map<String, String>> cmdMap) {
+        System.out.println("Usage: ");
 
-    /*
-     * NullFilter for disabling log output
-     */
-    private static class NullFilter implements Filter {
-
-        // isLoggable says everything is NOT logabble.
-        public boolean isLoggable(LogRecord record) {
-            //System.out.println("DEBUG: " + record.getLevel());
-            return false;
-        }
-    }
-
-    private static void setupLog() {
-
-        /*
-         * research purpose code chunk to see all log handlers in the system.
-         * LogManager lm  = LogManager.getLogManager();
-         * for (Enumeration l = lm.getLoggerNames();l.hasMoreElements();) {
-         *    String s = (String) l.nextElement();
-         *    System.out.println(s);
-         * }
-         */
-        if (!isLogMessage()) {
-            // openstack-java-sdk gets/creates a logger named "os" internally.
-            Logger l = Logger.getLogger("os");
-            l.setFilter(new NullFilter());
-            if (isDebug()) {
-                System.out.println("DEBUG: Filter : " + l.getFilter());
-                for (Handler h : l.getHandlers()) {
-                    System.out.println("DEBUG: Handlers: " + h);
-                }
-            }
-
+        for (Map.Entry<String, Map<String, String>> component : cmdMap.entrySet()) {
+            String c = component.getKey();
+            for (Map.Entry<String, String> entry : component.getValue().entrySet()) {
+                System.out.println("    " + getCommandName() + " " +
+                                   c + " " + entry.getKey());
+            }            
         }
     }
 
@@ -261,9 +203,9 @@ public class Jopst {
         String command = null;
         String component = args[0];
 
-        if(!hArray.containsKey(component)) {
+        if(!components.containsKey(component)) {
             System.out.println("Unknown component: " + component);
-            printUsage();
+            printUsage(cmdMap);
             System.exit(0);
         }
 
@@ -302,11 +244,11 @@ public class Jopst {
             }
         }
         //FIXME(thatsdone): look up nova/cinder...Cmds
-        //        if(!cArray.containsKey(command)) {
-        if(!cmMap.get(component).containsKey(command)) {
+        //        if(!novaCmds.containsKey(command)) {
+        if(!cmdMap.get(component).containsKey(command)) {
             System.out.println("Unknown command: "+
                                component + " " + command);
-            printUsage();
+            printUsage(cmdMap);
             System.exit(0);
         }
         String subargs[] = Arrays.copyOfRange(args, idx, args.length);
@@ -327,14 +269,6 @@ public class Jopst {
         return subargs;
     }
 
-    public static boolean isDebug() {
-        return debug;
-    }
-
-    public static boolean isLogMessage() {
-        return logMessage;
-    }
-
     /**
      * getNovaClient() : returns a valid Nova client class instance.
      *
@@ -350,7 +284,7 @@ public class Jopst {
             // First, create a Keystone cliet class instance.
             Keystone keystoneClient = new Keystone(osAuthUrl);
 
-            setupLog();
+            util.setupLog();
 
             // Set account information, and issue an authentication request.
             Access access = keystoneClient.tokens()
@@ -365,7 +299,7 @@ public class Jopst {
                 System.out.println("DEBUG: " + novaEndpoint);
             }
             /*  
-             * The a    bove contains TENANT_ID like:
+             * The above contains TENANT_ID like:
              *   http://SERVICE_HOST:PORT/v1.1/TENANT_ID
              * according to endpoints definition in keystone configuration.
              * It's the same as keystone endpoint-list.
@@ -398,17 +332,6 @@ public class Jopst {
         return null;
     }
 
-    private static void printUsage() {
-        System.out.println("Usage: ");
-
-        for (Map.Entry<String, Map<String, String>> component : cmMap.entrySet()) {
-            String c = component.getKey();
-            for (Map.Entry<String, String> entry : component.getValue().entrySet()) {
-                System.out.println("    " + commandName + " " +
-                                   c + " " + entry.getKey());
-            }            
-        }
-    }
 
     /**
      * main() : the main routine
@@ -418,7 +341,7 @@ public class Jopst {
     public static void main(String[] args) {
 
         if (args.length == 0) {
-            printUsage();
+            printUsage(cmdMap);
             System.exit(0);
         }
 
@@ -438,15 +361,8 @@ public class Jopst {
         Method m = null;
         try {
             m = Class.forName("com.github.thatsdone.jopst.J" + component)
-                .getMethod(cmMap.get(component).get(command), String[].class);
-            /*
-            m = Class.forName("com.github.thatsdone.jopst.J" + component)
-                .getMethod(cArray.get(command), String[].class);
-            */
-            /*
-            m = Jnova.class.getMethod(cArray.get(command),
-                                             String[].class);
-            */
+                .getMethod(cmdMap.get(component).get(command), String[].class);
+
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(0);
@@ -462,6 +378,7 @@ public class Jopst {
             // will be handled as independent classes and causes an error.
             // Could be a pitfall.
             m.invoke(null, (Object)c);
+
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(0);
@@ -487,7 +404,7 @@ public class Jopst {
             Access validation = keystoneClient.tokens()
                 .validate(access.getToken().getId(), adminTokenId)
                 .execute();
-            printJson(validation);
+            util.printJson(validation);
 
         }
         /* else {

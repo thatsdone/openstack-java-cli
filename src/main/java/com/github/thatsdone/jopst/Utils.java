@@ -21,19 +21,66 @@
  */
 package com.github.thatsdone.jopst;
 
-import com.woorea.openstack.keystone.Keystone;
-import com.woorea.openstack.keystone.model.Access;
-import com.woorea.openstack.keystone.model.authentication.UsernamePassword;
-
-import com.woorea.openstack.cinder.Cinder;
-import com.woorea.openstack.cinder.model.Volumes;
-
-import com.woorea.openstack.keystone.utils.KeystoneUtils;
-
 import java.lang.System;
+import java.util.Map;
+import java.util.logging.*;
 
-import  com.github.thatsdone.jopst.Jopst;
+import org.codehaus.jackson.map.ObjectMapper;
+
+import com.github.thatsdone.jopst.Jopst;
 
 public class Utils {
+
+    private static Jopst jopst;
+
+    /*
+     * NullFilter for disabling log output
+     */
+    private static class NullFilter implements Filter {
+        // isLoggable says everything is NOT logabble.
+        public boolean isLoggable(LogRecord record) {
+            //System.out.println("DEBUG: " + record.getLevel());
+            return false;
+        }
+    }
+
+    public static void setupLog() {
+        /*
+         * research purpose code chunk to see all log handlers in the system.
+         * LogManager lm  = LogManager.getLogManager();
+         * for (Enumeration l = lm.getLoggerNames();l.hasMoreElements();) {
+         *    String s = (String) l.nextElement();
+         *    System.out.println(s);
+         * }
+         */
+        if (!jopst.isLogMessage()) {
+            // openstack-java-sdk gets/creates a logger named "os" internally.
+            Logger l = Logger.getLogger("os");
+            l.setFilter(new NullFilter());
+            if (jopst.isDebug()) {
+                System.out.println("DEBUG: Filter : " + l.getFilter());
+                for (Handler h : l.getHandlers()) {
+                    System.out.println("DEBUG: Handlers: " + h);
+                }
+            }
+
+        }
+    }
+
+    public static void printJson(Object o) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            //System.out.println(mapper.writeValueAsString(o));
+            /*
+              DefaultPrettyPrinter pp = new DefaultPrettyPrinter();
+              pp.indentArrayWith(new Lf2SpacesIndenter());
+              System.out.println(mapper.writer(pp).writeValueAsString(o));
+            */
+            System.out.println(mapper.writerWithDefaultPrettyPrinter()
+                               .writeValueAsString(o));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }

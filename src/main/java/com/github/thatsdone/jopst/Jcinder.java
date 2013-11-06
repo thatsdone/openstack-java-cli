@@ -33,10 +33,12 @@ import com.woorea.openstack.keystone.utils.KeystoneUtils;
 import java.lang.System;
 
 import  com.github.thatsdone.jopst.Jopst;
+import  com.github.thatsdone.jopst.Utils;
 
 public class Jcinder {
 
     private static Jopst jopst;
+    private static Utils util;
 
     private static String osAuthUrl = jopst.getOsAuthUrl();
     private static String osPassword = jopst.getOsPassword();
@@ -89,7 +91,7 @@ public class Jcinder {
             } else {
                 volumes = cinderClient.volumes().list(true).execute();
             }
-            jopst.printJson(volumes);
+            util.printJson(volumes);
         }
     }
 }

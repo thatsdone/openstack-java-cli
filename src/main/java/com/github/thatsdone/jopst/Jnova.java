@@ -52,11 +52,13 @@ import com.woorea.openstack.nova.model.Limits;
 import java.lang.System;
 import java.lang.Integer;
 
-import  com.github.thatsdone.jopst.Jopst;
+import com.github.thatsdone.jopst.Jopst;
+import com.github.thatsdone.jopst.Utils;
 
 public class Jnova {
 
     private static Jopst jopst;
+    private static Utils util;
 
     /*
      * per resource method
@@ -90,7 +92,7 @@ public class Jnova {
                 // Simple 'nova list' does not use it.
                 servers = jopst.novaClient.servers().list(true).execute();
             }
-            jopst.printJson(servers);
+            util.printJson(servers);
             if (jopst.isDebug()) {
                 for (Server s : servers) {
                     System.out.println("Hypervisor     : "
@@ -124,7 +126,7 @@ public class Jnova {
         } else if (command.equals("show")) {
             if (args.length >= 2) {
                 Server server = jopst.novaClient.servers().show(args[1]).execute();
-                jopst.printJson(server);
+                util.printJson(server);
             } else {
                 System.out.println("Specify server id");
             }
@@ -171,7 +173,7 @@ public class Jnova {
             if (jopst.isDebug()) {
                 System.out.println(hosts);
             }
-            jopst.printJson(hosts);
+            util.printJson(hosts);
             if (jopst.isDebug()) {
                 for(Hosts.Host host : hosts) {
                     System.out.println(host);
@@ -189,7 +191,7 @@ public class Jnova {
             // nova host-describe HOSTNAME
             if (args.length >= 2) {
                 Host h = jopst.novaClient.hosts().show(args[1]).execute();
-                jopst.printJson(h);
+                util.printJson(h);
                 if (jopst.isDebug()) {
                     System.out.println(h);
                 }
@@ -215,7 +217,7 @@ public class Jnova {
             if (jopst.isDebug()) {
                 System.out.println(hypervisors);
             }
-            jopst.printJson(hypervisors);
+            util.printJson(hypervisors);
 
         } else if (command.equals("hypervisor-show")) {
             // nova hypervisor-show
@@ -225,7 +227,7 @@ public class Jnova {
             }
             Hypervisor hv = jopst.novaClient.hypervisors()
                 .show(new Integer(args[1])).execute();
-            jopst.printJson(hv);
+            util.printJson(hv);
             if (jopst.isDebug()) {
                 System.out.println(hv);
             }
@@ -234,7 +236,7 @@ public class Jnova {
             // nova hypervisor-stats
             HypervisorStatistics stat = jopst.novaClient.hypervisors()
                 .showStats().execute();
-            jopst.printJson(stat);
+            util.printJson(stat);
             if (jopst.isDebug()) {
                 System.out.println(stat);
             }
@@ -246,7 +248,7 @@ public class Jnova {
             }
             HypervisorServers hs = jopst.novaClient.hypervisors()
                 .showServers(args[1]).execute();
-            jopst.printJson(hs);
+            util.printJson(hs);
             if (jopst.isDebug()) {
                 System.out.println(hs);
             }
@@ -266,7 +268,7 @@ public class Jnova {
             if (command.equals("service-list")) {
                 // nova service-list
                 Services services = jopst.novaClient.services().list().execute();
-                jopst.printJson(services);
+                util.printJson(services);
                 if (jopst.isDebug()) {
                     for(Service service : services) {
                             System.out.println(service); 
@@ -278,7 +280,7 @@ public class Jnova {
                 if (args.length >= 3) {
                     Service resp = jopst.novaClient.services()
                         .disableService(args[1], args[2]).execute();
-                    jopst.printJson(resp);    
+                    util.printJson(resp);    
                     if (jopst.isDebug()) {
                         System.out.println(resp);
                     }
@@ -291,7 +293,7 @@ public class Jnova {
                 if (args.length >= 3) {
                     Service resp = jopst.novaClient.services()
                         .enableService(args[1], args[2]).execute();
-                    jopst.printJson(resp);
+                    util.printJson(resp);
                     if (jopst.isDebug()) {
                         System.out.println(resp);
                     }
@@ -316,7 +318,7 @@ public class Jnova {
                 // nova usage-list
                 SimpleTenantUsage stu = jopst.novaClient.quotaSets()
                     .showUsage(args[1]).execute();
-                jopst.printJson(stu);
+                util.printJson(stu);
                 if (jopst.isDebug()) {
                     System.out.println(stu);
                 }
@@ -328,7 +330,7 @@ public class Jnova {
             // limits
             // nova rate-limits
             Limits limits = jopst.novaClient.quotaSets().showUsedLimits().execute();
-            jopst.printJson(limits);
+            util.printJson(limits);
             if (jopst.isDebug()) {
                 System.out.println(limits);
             }
@@ -347,7 +349,7 @@ public class Jnova {
             // flavors
             // nova flavor-list
             Flavors flavors = jopst.novaClient.flavors().list(true).execute();
-            jopst.printJson(flavors);
+            util.printJson(flavors);
             if (jopst.isDebug()) {
                 System.out.println(flavors);
             }
@@ -367,7 +369,7 @@ public class Jnova {
             if (command.equals("aggregate-list")) {
                 // nova aggregate-list
                 HostAggregates ags = jopst.novaClient.aggregates().list().execute();
-                jopst.printJson(ags);
+                util.printJson(ags);
                 if (jopst.isDebug()) {
                     System.out.println(ags);
                 }
@@ -378,7 +380,7 @@ public class Jnova {
                 if (args.length >= 2) {
                     HostAggregate ag = jopst.novaClient.aggregates().
                         showAggregate(args[1]).execute();
-                    jopst.printJson(ag);
+                    util.printJson(ag);
                     if (jopst.isDebug()) {
                         System.out.println(ag);
                     }
@@ -393,7 +395,7 @@ public class Jnova {
                     HostAggregate ag = jopst.novaClient.aggregates().
                         createAggregate(args[1], (args.length == 2) ? null : args[2])
                         .execute();
-                    jopst.printJson(ag);
+                    util.printJson(ag);
                     if (jopst.isDebug()) {
                         System.out.println(ag);
                     }
@@ -415,7 +417,7 @@ public class Jnova {
                 if (args.length >= 3) {
                     HostAggregate ag = jopst.novaClient.aggregates().
                         addHost(args[1], args[2]).execute();
-                    jopst.printJson(ag);
+                    util.printJson(ag);
                     if (jopst.isDebug()) {
                         System.out.println(ag);
                     }
@@ -428,7 +430,7 @@ public class Jnova {
                 if (args.length >= 3) {
                     HostAggregate ag = jopst.novaClient.aggregates()
                         .removeHost(args[1], args[2]).execute();
-                    jopst.printJson(ag);
+                    util.printJson(ag);
                     if (jopst.isDebug()) {
                         System.out.println(ag);
                     }
@@ -441,7 +443,7 @@ public class Jnova {
                 if (args.length >= 3) {
                     HostAggregate ag = jopst.novaClient.aggregates()
                         .updateAggregateMetadata(args[1], args[2], (args.length == 3 ? null : args[3])).execute();
-                    jopst.printJson(ag);
+                    util.printJson(ag);
                     if (jopst.isDebug()) {
                         System.out.println(ag);
                     }
@@ -459,7 +461,7 @@ public class Jnova {
 
                     HostAggregate ag = jopst.novaClient.aggregates()
                         .setMetadata(args[1], kv[0], kv[1]).execute();
-                    jopst.printJson(ag);
+                    util.printJson(ag);
                     if (jopst.isDebug()) {
                         System.out.println(ag);
                     }
@@ -484,7 +486,7 @@ public class Jnova {
             // nova availability-zone-list
             AvailabilityZoneInfo az = jopst.novaClient.availabilityZoneInfo()
                 .show(true).execute();
-            jopst.printJson(az);
+            util.printJson(az);
             if (jopst.isDebug()) {
                 System.out.println(az);
             }
@@ -508,7 +510,7 @@ public class Jnova {
              * Looks like '/v2/TENANT_ID/extensions/detail' is not supported.
              */
             Extensions ex = jopst.novaClient.extensions().list(false).execute();
-            jopst.printJson(ex);
+            util.printJson(ex);
             if (jopst.isDebug()) {
                 System.out.println(ex);
             }
@@ -527,7 +529,7 @@ public class Jnova {
             // images
             // nova image-list
             Images  img = jopst.novaClient.images().list(true).execute();
-            jopst.printJson(img);
+            util.printJson(img);
             if (jopst.isDebug()) {
                 System.out.println(img);
             }
@@ -563,7 +565,7 @@ public class Jnova {
             } else {
                 volumes = jopst.novaClient.volumes().list(true).execute();
             }
-            jopst.printJson(volumes);
+            util.printJson(volumes);
             if (jopst.isDebug()) {
                 System.out.println(volumes);
             }
