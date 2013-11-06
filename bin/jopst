@@ -20,11 +20,13 @@ ${REPO}/com/woorea/nova-model/${V}/nova-model-${V}.jar:\
 ${REPO}/com/woorea/openstack-client/${V}/openstack-client-${V}.jar:\
 ${REPO}/com/woorea/cinder-client/${V}/cinder-client-${V}.jar:\
 ${REPO}/com/woorea/cinder-model/${V}/cinder-model-${V}.jar:\
+${REPO}/com/woorea/heat-client/${V}/heat-client-${V}.jar:\
+${REPO}/com/woorea/heat-model/${V}/heat-model-${V}.jar:\
 "
 
 #${REPO}/com/woorea/openstack-examples/${V}/openstack-examples-${V}.jar:\
-
 #${REPO}/com/woorea/openstack-console/${V}/openstack-console-${V}.jar:\
+
 #${REPO}/com/woorea/ceilometer-client/${V}/ceilometer-client-${V}.jar:\
 #${REPO}/com/woorea/ceilometer-model/${V}/ceilometer-model-${V}.jar:\
 #${REPO}/com/woorea/glance-client/${V}/glance-client-${V}.jar:\

@@ -60,8 +60,10 @@ public class Jnova {
     private static Jopst jopst;
     private static Utils util;
 
-    /*
-     * per resource method
+    /**
+     * server() :
+	 * @param args : 
+	 * @return 
      */
     public static void server(String[] args) {
 
@@ -72,7 +74,7 @@ public class Jnova {
         String command = args[0];
 
         if (command.equals("list")) {
-            //servers :
+            //servers
             boolean allTenants = false;
             for(int i = 0; i < args.length; i++) {
                 if (args[i].equals("--all-tenants")) {
@@ -114,7 +116,6 @@ public class Jnova {
                     System.out.println("");
                 }
             }
-
             //
             if (jopst.isDebug()) {
                 for(Server server : servers) {
@@ -133,10 +134,11 @@ public class Jnova {
             // "show"
 
         } else if (command.equals("live-migration")) {
+            // live-migration
             boolean block = false;
             boolean disk = false;
+
             if (args.length >= 3) {
-                //System.out.println("len: " + args.length);
                 for (int i = 3; i < args.length; i++) {
                     if (args[i].equals("--block-migrate")) {
                         block = true;
@@ -560,7 +562,7 @@ public class Jnova {
 
             if (allTenants) {
                 // nova volume-list --all-tenants
-                 volumes = jopst.novaClient.volumes()
+                volumes = jopst.novaClient.volumes()
                     .list(true).queryParam("all_tenants", "1").execute();
             } else {
                 volumes = jopst.novaClient.volumes().list(true).execute();

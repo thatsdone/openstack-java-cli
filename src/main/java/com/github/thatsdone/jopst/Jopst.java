@@ -65,6 +65,11 @@ import com.woorea.openstack.keystone.model.Access;
 import com.woorea.openstack.keystone.model.authentication.UsernamePassword;
 import com.woorea.openstack.nova.Nova;
 
+//temporary
+import com.woorea.openstack.heat.Heat;
+import com.woorea.openstack.heat.model.Stacks;
+
+
 import com.woorea.openstack.keystone.utils.KeystoneUtils;
 
 import java.lang.System;
@@ -83,24 +88,26 @@ import com.github.thatsdone.jopst.Utils;
 
 public class Jopst {
 
+    //work around for 'validate'
+    private static String adminTokenId;
+
+    private static Utils util;
+
+    public static Nova novaClient;
+
     private static String commandName = "jopst";
 
     public static String getCommandName() {
         return commandName;
     }
 
-    //work around for 'validate'
-    private static String adminTokenId;
-
-    public static Nova novaClient;
-    private static Utils util;
-
     private static boolean debug = false;
-    private static boolean logMessage = false;
 
     public static boolean isDebug() {
         return debug;
     }
+
+    private static boolean logMessage = false;
 
     public static boolean isLogMessage() {
         return logMessage;
@@ -133,6 +140,10 @@ public class Jopst {
 
     public static Map<String, String> cinderCmds =
         new LinkedHashMap<String, String>();
+ 
+    public static Map<String, String> heatCmds =
+        new LinkedHashMap<String, String>();
+
     public static Map<String, String> keystoneCmds =
         new LinkedHashMap<String, String>();
 
@@ -142,6 +153,7 @@ public class Jopst {
     static {
         novaCmds.put("list", "server");
         novaCmds.put("show", "server");
+        novaCmds.put("live-migration", "server");
         novaCmds.put("host-list", "host");
         novaCmds.put("host-describe", "host");
         novaCmds.put("hypervisor-list", "hypervisor");
@@ -152,6 +164,7 @@ public class Jopst {
         novaCmds.put("service-enable", "service");
         novaCmds.put("service-disable", "service");
         novaCmds.put("usage-list", "quotaSet");
+        novaCmds.put("rate-limits", "quotaSet");
         novaCmds.put("aggregate-list", "aggregate");
         novaCmds.put("aggregate-details", "aggregate");
         novaCmds.put("aggregate-create", "aggregate");
@@ -161,35 +174,49 @@ public class Jopst {
         novaCmds.put("aggregate-update", "aggregate");
         novaCmds.put("aggregate-set-metadata", "aggregate");
         novaCmds.put("flavor-list", "flavor");
-        novaCmds.put("live-migration", "server");
         novaCmds.put("availability-zone-list", "availabilityZone");
         novaCmds.put("list-extensions", "extensions");
         novaCmds.put("image-list", "image");
         novaCmds.put("volume-list", "volume");
-        novaCmds.put("rate-limits", "quotaSet");
 
         cinderCmds.put("list", "volumes");
 
-        keystoneCmds.put("validate", "validate");
+        keystoneCmds.put("token-validate", "token");
+
+        heatCmds.put("stack-list", "stack");
 
         cmdMap.put("nova", novaCmds);
         cmdMap.put("cinder", cinderCmds);
         cmdMap.put("keystone", keystoneCmds);
+        cmdMap.put("heat", heatCmds);
 
         components.put("nova", "Jnova");
         components.put("cinder", "Jcinder");
         components.put("keystone", "Jkeystone");
+        components.put("heat", "Jheat");
     }
 
+    /**
+     * printUsage() : print simple usage
+     *
+     * @param   cmdMap : Map from a component to a command list
+     * @return  void
+     */
     public static void printUsage(Map<String, Map<String, String>> cmdMap) {
+
         System.out.println("Usage: ");
 
-        for (Map.Entry<String, Map<String, String>> component : cmdMap.entrySet()) {
-            String c = component.getKey();
-            for (Map.Entry<String, String> entry : component.getValue().entrySet()) {
-                System.out.println("    " + getCommandName() + " " +
-                                   c + " " + entry.getKey());
-            }            
+        for (Map.Entry<String, Map<String, String>> componentMap :
+                 cmdMap.entrySet()) {
+
+            String component = componentMap.getKey();
+            for (Map.Entry<String, String> commandEntry : componentMap
+                     .getValue().entrySet()) {
+                System.out.println("    " +
+                                   getCommandName() + " " +
+                                   component + " " +
+                                   commandEntry.getKey());
+            }
         }
     }
 
@@ -284,8 +311,6 @@ public class Jopst {
             // First, create a Keystone cliet class instance.
             Keystone keystoneClient = new Keystone(osAuthUrl);
 
-            util.setupLog();
-
             // Set account information, and issue an authentication request.
             Access access = keystoneClient.tokens()
                 .authenticate(new UsernamePassword(osUsername, osPassword))
@@ -346,7 +371,7 @@ public class Jopst {
         }
 
         // Parse comnand line arguments.
-        String[] c = parseCommon(args);
+        String[] commandArgs = parseCommon(args);
 
         if (osAuthUrl == null || osPassword == null ||
             osTenantName == null || osUsername == null) {
@@ -354,7 +379,9 @@ public class Jopst {
             System.exit(0);
         }
 
-        String command = c[0];
+        util.setupLog();
+
+        String command = commandArgs[0];
 
         String component = args[0];
 
@@ -377,7 +404,7 @@ public class Jopst {
             // Without the cast (Object) below, elements of cmdargs[]
             // will be handled as independent classes and causes an error.
             // Could be a pitfall.
-            m.invoke(null, (Object)c);
+            m.invoke(null, (Object)commandArgs);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -388,7 +415,7 @@ public class Jopst {
          * command handlers
          */
 
-        if (command.equals("validate")) {
+        if (command.equals("token-validate")) {
             // this is a poc code to validate a token using an admin token
             // using an extended feature of openstack-java-sdk.
             //

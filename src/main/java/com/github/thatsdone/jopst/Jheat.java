@@ -1,5 +1,5 @@
 /**
- * Name : Jkeystone.java
+ * Name : Jheat.java
  * 
  * Author: Masanori Itoh <masanori.itoh@gmail.com>
  * 
@@ -24,31 +24,58 @@ package com.github.thatsdone.jopst;
 import com.woorea.openstack.keystone.Keystone;
 import com.woorea.openstack.keystone.model.Access;
 import com.woorea.openstack.keystone.model.authentication.UsernamePassword;
-
-import com.woorea.openstack.cinder.Cinder;
-import com.woorea.openstack.cinder.model.Volumes;
-
 import com.woorea.openstack.keystone.utils.KeystoneUtils;
+
+import com.woorea.openstack.heat.Heat;
+import com.woorea.openstack.heat.model.Stacks;
 
 import java.lang.System;
 
 import  com.github.thatsdone.jopst.Jopst;
+import com.github.thatsdone.jopst.Utils;
 
-public class Jkeystone {
+public class Jheat {
 
     private static Jopst jopst;
-
+    private static Utils util;
+	/*
     private static String osAuthUrl = jopst.getOsAuthUrl();
     private static String osPassword = jopst.getOsPassword();
     private static String osTenantName = jopst.getOsTenantName();
     private static String osUsername = jopst.getOsUsername();
-
-    public static void token(String[] args) {
+	*/
+    public static void stack(String[] args) {
         if(jopst.isDebug()) {
-            System.out.println("validate() called."); 
+            System.out.println("stack() called."); 
         }
 
         String command = args[0];
 
+		if (command.equals("stack-list")) {
+
+            Keystone keystoneClient = new Keystone(jopst.getOsAuthUrl());
+
+            Access access = keystoneClient.tokens()
+                .authenticate(new UsernamePassword(jopst.getOsUsername(),
+												   jopst.getOsPassword()))
+                .withTenantName(jopst.getOsTenantName())
+                .execute();
+        
+            String heatEndpoint = KeystoneUtils
+                .findEndpointURL(access.getServiceCatalog(),
+                                 "orchestration", null, "public");
+            if (jopst.isDebug()) {
+                System.out.println("DEBUG: " + heatEndpoint);
+            }
+            Heat heatClient = new Heat(heatEndpoint);
+            heatClient.token(access.getToken().getId());
+
+            // heat stack-list
+            Stacks stacks = heatClient.stacks().list().execute();
+            util.printJson(stacks);
+            if (jopst.isDebug()) {
+                System.out.println(stacks);
+            }
+        }
     }
 }
