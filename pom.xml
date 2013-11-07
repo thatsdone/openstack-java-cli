@@ -60,6 +60,28 @@
     </dependency>
 
     <dependency>
+      <groupId>com.woorea</groupId>
+      <artifactId>swift-client</artifactId>
+      <version>3.2.2-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>com.woorea</groupId>
+      <artifactId>swift-model</artifactId>
+      <version>3.2.2-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.woorea</groupId>
+      <artifactId>glance-client</artifactId>
+      <version>3.2.2-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>com.woorea</groupId>
+      <artifactId>glance-model</artifactId>
+      <version>3.2.2-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>3.8.1</version>

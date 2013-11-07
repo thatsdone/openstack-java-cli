@@ -122,10 +122,16 @@ public class Jopst {
     public static Map<String, String> novaCmds =
         new LinkedHashMap<String, String>();
 
+    public static Map<String, String> glanceCmds =
+        new LinkedHashMap<String, String>();
+
     public static Map<String, String> cinderCmds =
         new LinkedHashMap<String, String>();
  
     public static Map<String, String> heatCmds =
+        new LinkedHashMap<String, String>();
+
+    public static Map<String, String> swiftCmds =
         new LinkedHashMap<String, String>();
 
     public static Map<String, String> keystoneCmds =
@@ -163,7 +169,11 @@ public class Jopst {
         novaCmds.put("image-list", "image");
         novaCmds.put("volume-list", "volume");
 
+        glanceCmds.put("image-list", "image");
+
         cinderCmds.put("list", "volumes");
+
+        //swiftCmds.put("list", "swift");
 
         keystoneCmds.put("token-validate", "token");
 
@@ -171,11 +181,15 @@ public class Jopst {
 
         cmdMap.put("nova", novaCmds);
         cmdMap.put("cinder", cinderCmds);
+        cmdMap.put("glance", glanceCmds);
+        cmdMap.put("swift", swiftCmds);
         cmdMap.put("keystone", keystoneCmds);
         cmdMap.put("heat", heatCmds);
 
         components.put("nova", "Jnova");
+        components.put("glance", "Jglance");
         components.put("cinder", "Jcinder");
+        components.put("swift", "Jswift");
         components.put("keystone", "Jkeystone");
         components.put("heat", "Jheat");
     }
