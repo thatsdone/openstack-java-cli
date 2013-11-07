@@ -24,31 +24,52 @@ package com.github.thatsdone.jopst;
 import com.woorea.openstack.keystone.Keystone;
 import com.woorea.openstack.keystone.model.Access;
 import com.woorea.openstack.keystone.model.authentication.UsernamePassword;
-
-import com.woorea.openstack.cinder.Cinder;
-import com.woorea.openstack.cinder.model.Volumes;
-
 import com.woorea.openstack.keystone.utils.KeystoneUtils;
 
 import java.lang.System;
 
-import  com.github.thatsdone.jopst.Jopst;
+import com.github.thatsdone.jopst.Jopst;
+import com.github.thatsdone.jopst.Utils;
 
 public class Jkeystone {
 
     private static Jopst jopst;
-
-    private static String osAuthUrl = jopst.getOsAuthUrl();
-    private static String osPassword = jopst.getOsPassword();
-    private static String osTenantName = jopst.getOsTenantName();
-    private static String osUsername = jopst.getOsUsername();
+    private static Utils util;
 
     public static void token(String[] args) {
         if(jopst.isDebug()) {
-            System.out.println("validate() called."); 
+            System.out.println("token() called."); 
         }
 
         String command = args[0];
 
+        if (command.equals("token-validate")) {
+
+            // this is a poc code to validate a token using an admin token
+            // using an extended feature of openstack-java-sdk.
+            //
+            Keystone keystoneClient = new Keystone(jopst.getOsAuthUrl());
+
+            // First, create an administrative token.
+            Access access = keystoneClient.tokens()
+                .authenticate(new UsernamePassword(jopst.getOsUsername(),
+                                                   jopst.getOsPassword()))
+                .withTenantName(jopst.getOsTenantName())
+                .execute();
+            String adminTokenId = access.getToken().getId();
+
+            // Second, create a non-administrative token.
+            // replace user, password and tenant below.
+            access = keystoneClient.tokens()
+                .authenticate(new UsernamePassword("demo", "demo"))
+                .withTenantName("demo")
+                .execute();
+
+            // Third, call validate() method.
+            Access validation = keystoneClient.tokens()
+                .validate(access.getToken().getId(), adminTokenId)
+                .execute();
+            util.printJson(validation);
+        }
     }
 }

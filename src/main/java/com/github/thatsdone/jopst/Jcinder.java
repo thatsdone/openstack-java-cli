@@ -24,11 +24,10 @@ package com.github.thatsdone.jopst;
 import com.woorea.openstack.keystone.Keystone;
 import com.woorea.openstack.keystone.model.Access;
 import com.woorea.openstack.keystone.model.authentication.UsernamePassword;
+import com.woorea.openstack.keystone.utils.KeystoneUtils;
 
 import com.woorea.openstack.cinder.Cinder;
 import com.woorea.openstack.cinder.model.Volumes;
-
-import com.woorea.openstack.keystone.utils.KeystoneUtils;
 
 import java.lang.System;
 
@@ -39,12 +38,6 @@ public class Jcinder {
 
     private static Jopst jopst;
     private static Utils util;
-
-    private static String osAuthUrl = jopst.getOsAuthUrl();
-    private static String osPassword = jopst.getOsPassword();
-    private static String osTenantName = jopst.getOsTenantName();
-    private static String osUsername = jopst.getOsUsername();
-
 
     public static void volumes(String[] args) {
         if(jopst.isDebug()) {
@@ -66,12 +59,13 @@ public class Jcinder {
                     }
                 }
             }
-            Keystone keystoneClient = new Keystone(osAuthUrl);
+            Keystone keystoneClient = new Keystone(jopst.getOsAuthUrl());
 
             // Set account information, and issue an authentication request.
             Access access = keystoneClient.tokens()
-                .authenticate(new UsernamePassword(osUsername, osPassword))
-                .withTenantName(osTenantName)
+                .authenticate(new UsernamePassword(jopst.getOsUsername(),
+                                                   jopst.getOsPassword()))
+                .withTenantName(jopst.getOsTenantName())
                 .execute();
 
             String cinderEndpoint = KeystoneUtils

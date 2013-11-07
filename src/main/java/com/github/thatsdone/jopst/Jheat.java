@@ -38,12 +38,12 @@ public class Jheat {
 
     private static Jopst jopst;
     private static Utils util;
-	/*
+    /*
     private static String osAuthUrl = jopst.getOsAuthUrl();
     private static String osPassword = jopst.getOsPassword();
     private static String osTenantName = jopst.getOsTenantName();
     private static String osUsername = jopst.getOsUsername();
-	*/
+    */
     public static void stack(String[] args) {
         if(jopst.isDebug()) {
             System.out.println("stack() called."); 
@@ -51,13 +51,13 @@ public class Jheat {
 
         String command = args[0];
 
-		if (command.equals("stack-list")) {
+        if (command.equals("stack-list")) {
 
             Keystone keystoneClient = new Keystone(jopst.getOsAuthUrl());
 
             Access access = keystoneClient.tokens()
                 .authenticate(new UsernamePassword(jopst.getOsUsername(),
-												   jopst.getOsPassword()))
+                                                   jopst.getOsPassword()))
                 .withTenantName(jopst.getOsTenantName())
                 .execute();
         

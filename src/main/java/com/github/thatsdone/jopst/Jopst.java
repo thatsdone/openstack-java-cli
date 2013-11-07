@@ -2,11 +2,12 @@
  * Name : Jopst.java
  * 
  * Description: 
+ *
  *  An integrated OpenStack client command using:
  *    https://github.com/woorea/openstack-java-sdk
  *
- *  Note that this program uses some extended features of the java sdk
- *  of a forked version available below:
+ *  Note that this program uses some extended features of vailable 
+ *  in a forked version of the sdk available below:
  *    https://github.com/thatsdone/openstack-java-sdk 
  * 
  *  Currently the following sub command equivalents are implemented.
@@ -38,7 +39,8 @@
  *    jopst nova volume-list
  *    jopst nova rate-limits
  *    jopst cinder list
- *    jopst keystone validate
+ *    jopst heat stack-list
+ *    jopst keystone token-validate
  * 
  *  Author: Masanori Itoh <masanori.itoh@gmail.com>
  * 
@@ -60,22 +62,9 @@
  */
 package com.github.thatsdone.jopst;
 
-import com.woorea.openstack.keystone.Keystone;
-import com.woorea.openstack.keystone.model.Access;
-import com.woorea.openstack.keystone.model.authentication.UsernamePassword;
-import com.woorea.openstack.nova.Nova;
-
-//temporary
-import com.woorea.openstack.heat.Heat;
-import com.woorea.openstack.heat.model.Stacks;
-
-
-import com.woorea.openstack.keystone.utils.KeystoneUtils;
-
 import java.lang.System;
 import java.lang.Integer;
 import java.lang.reflect.Method;
-
 import java.util.List;
 import java.util.Arrays;
 import java.util.Map;
@@ -88,12 +77,7 @@ import com.github.thatsdone.jopst.Utils;
 
 public class Jopst {
 
-    //work around for 'validate'
-    private static String adminTokenId;
-
     private static Utils util;
-
-    public static Nova novaClient;
 
     private static String commandName = "jopst";
 
@@ -297,68 +281,6 @@ public class Jopst {
     }
 
     /**
-     * getNovaClient() : returns a valid Nova client class instance.
-     *
-     * @param   osAuthUrl    OS_AUTH_URL
-     * @param   osPassword   OS_PASSWORD
-     * @param   osTenantName OS_TENANT_NAME
-     * @param   osUsername   OS_USERNAME
-     * @return  Nova class (of openstack-java-sdk) instance
-     */
-    public static Nova getNovaClient(String osAuthUrl, String osPassword,
-                                     String osTenantName, String osUsername) {
-        try {
-            // First, create a Keystone cliet class instance.
-            Keystone keystoneClient = new Keystone(osAuthUrl);
-
-            // Set account information, and issue an authentication request.
-            Access access = keystoneClient.tokens()
-                .authenticate(new UsernamePassword(osUsername, osPassword))
-                .withTenantName(osTenantName)
-                .execute();
-        
-            String novaEndpoint = KeystoneUtils
-                .findEndpointURL(access.getServiceCatalog(),
-                                 "compute", null, "public");
-            if (isDebug()) {
-                System.out.println("DEBUG: " + novaEndpoint);
-            }
-            /*  
-             * The above contains TENANT_ID like:
-             *   http://SERVICE_HOST:PORT/v1.1/TENANT_ID
-             * according to endpoints definition in keystone configuration.
-             * It's the same as keystone endpoint-list.
-             *
-             * Note that we don't need to append a '/' to the URL because
-             * openstack-java-sdk library codes add it.
-             *   Nova novaClient = new Nova(novaEndpoint.concat("/"));
-             */
-
-            // Create a Nova client object.
-            novaClient = new Nova(novaEndpoint);
-
-            /*
-             * Set the token now we got for the following requests.
-             * Note that we can use the same token in the above keystone 
-             * response unless it's not expired.
-             */
-            novaClient.token(access.getToken().getId());
-
-            //work around for 'validate'
-            adminTokenId = access.getToken().getId();
-            return novaClient;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Failed to create/initialize a Nova client.");
-            System.exit(0);
-        }
-        // never here
-        return null;
-    }
-
-
-    /**
      * main() : the main routine
      *
      * @param args
@@ -395,10 +317,6 @@ public class Jopst {
             System.exit(0);
         }
 
-        // getNovaClient() succeeds, or aborts the process.
-        Nova novaClient = getNovaClient(osAuthUrl, osPassword,
-                                        osTenantName, osUsername);
-
         try {
             // Note(thatsdone):
             // Without the cast (Object) below, elements of cmdargs[]
@@ -414,30 +332,13 @@ public class Jopst {
         /*
          * command handlers
          */
-
-        if (command.equals("token-validate")) {
-            // this is a poc code to validate a token using an admin token
-            // using an extended feature of openstack-java-sdk.
-            //
-            // First, create a non-administrative token.
-            Keystone keystoneClient = new Keystone(osAuthUrl);
-            // replace user, password and tenant below.
-            Access access = keystoneClient.tokens()
-                .authenticate(new UsernamePassword("demo", "demo"))
-                .withTenantName("demo")
-                .execute();
-
-            // Second, call validate() method.
-            Access validation = keystoneClient.tokens()
-                .validate(access.getToken().getId(), adminTokenId)
-                .execute();
-            util.printJson(validation);
-
-        }
-        /* else {
+        /*
+        if (command.equals("XXXX")) {
+            ;
+        } else {
             System.out.println("Unknown command :" + command);
 
-            }
+         }
         */
     }
 }
