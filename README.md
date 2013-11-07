@@ -71,8 +71,9 @@ dependency libraries, please modify that.
 Either of the following (currently):
 
  * nova
- * keystone
  * cinder
+ * heat
+ * keystone
 
 **COMMON OPTIONS**
 
@@ -92,7 +93,7 @@ Almost the same as (supported) nova/keystone/cinder command.
 **NOTES**
 
 1. Among common options, '--log-message' is an extended option to log API messages.
-2. keystone validate is an extended subcommand to invoke token validation.
+2. keystone token-validate is an extended subcommand to invoke token validation.
 
 
 Also, please find supported subcommands in the following usage output.
@@ -127,7 +128,8 @@ Usage:
     jopst nova volume-list
     jopst nova rate-limits
     jopst cinder list
-    jopst keystone validate
+    jopst heat stack-list
+    jopst keystone token-validate
 </pre>
 
 TODO
