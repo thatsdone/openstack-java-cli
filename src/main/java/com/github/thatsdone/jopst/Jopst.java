@@ -128,6 +128,9 @@ public class Jopst {
     public static Map<String, String> cinderCmds =
         new LinkedHashMap<String, String>();
  
+    public static Map<String, String> neutronCmds =
+        new LinkedHashMap<String, String>();
+ 
     public static Map<String, String> heatCmds =
         new LinkedHashMap<String, String>();
 
@@ -173,6 +176,11 @@ public class Jopst {
 
         cinderCmds.put("list", "volumes");
 
+        neutronCmds.put("net-list", "network");
+        neutronCmds.put("subnet-list", "network");
+        neutronCmds.put("port-list", "network");
+        neutronCmds.put("router-list", "network");
+
         //swiftCmds.put("list", "swift");
 
         keystoneCmds.put("token-validate", "token");
@@ -182,6 +190,7 @@ public class Jopst {
         cmdMap.put("nova", novaCmds);
         cmdMap.put("cinder", cinderCmds);
         cmdMap.put("glance", glanceCmds);
+        cmdMap.put("neutron", neutronCmds);
         cmdMap.put("swift", swiftCmds);
         cmdMap.put("keystone", keystoneCmds);
         cmdMap.put("heat", heatCmds);
@@ -189,6 +198,7 @@ public class Jopst {
         components.put("nova", "Jnova");
         components.put("glance", "Jglance");
         components.put("cinder", "Jcinder");
+        components.put("neutron", "Jneutron");
         components.put("swift", "Jswift");
         components.put("keystone", "Jkeystone");
         components.put("heat", "Jheat");
@@ -268,8 +278,7 @@ public class Jopst {
                 break;
             }
         }
-        //FIXME(thatsdone): look up nova/cinder...Cmds
-        //        if(!novaCmds.containsKey(command)) {
+
         if(!cmdMap.get(component).containsKey(command)) {
             System.out.println("Unknown command: "+
                                component + " " + command);
