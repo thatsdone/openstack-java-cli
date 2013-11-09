@@ -134,6 +134,9 @@ public class Jopst {
     public static Map<String, String> heatCmds =
         new LinkedHashMap<String, String>();
 
+    public static Map<String, String> ceilometerCmds =
+        new LinkedHashMap<String, String>();
+
     public static Map<String, String> swiftCmds =
         new LinkedHashMap<String, String>();
 
@@ -187,6 +190,9 @@ public class Jopst {
 
         heatCmds.put("stack-list", "stack");
 
+        //ceilometerCmds.put("meter-list", "ceilometer");
+        //ceilometerCmds.put("resource-list", "ceilometer");
+
         cmdMap.put("nova", novaCmds);
         cmdMap.put("cinder", cinderCmds);
         cmdMap.put("glance", glanceCmds);
@@ -194,6 +200,7 @@ public class Jopst {
         cmdMap.put("swift", swiftCmds);
         cmdMap.put("keystone", keystoneCmds);
         cmdMap.put("heat", heatCmds);
+        cmdMap.put("ceilometer", ceilometerCmds);
 
         components.put("nova", "Jnova");
         components.put("glance", "Jglance");
@@ -202,6 +209,7 @@ public class Jopst {
         components.put("swift", "Jswift");
         components.put("keystone", "Jkeystone");
         components.put("heat", "Jheat");
+        components.put("ceilometer", "Jceilometer");
     }
 
     /**

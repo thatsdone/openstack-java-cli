@@ -92,6 +92,16 @@
       <version>3.2.2-SNAPSHOT</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.woorea</groupId>
+      <artifactId>ceilometer-client</artifactId>
+      <version>3.2.2-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>com.woorea</groupId>
+      <artifactId>ceilometer-model</artifactId>
+      <version>3.2.2-SNAPSHOT</version>
+    </dependency>
 
     <dependency>
       <groupId>junit</groupId>

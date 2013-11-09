@@ -28,13 +28,13 @@ ${REPO}/com/woorea/glance-client/${V}/glance-client-${V}.jar:\
 ${REPO}/com/woorea/glance-model/${V}/glance-model-${V}.jar:\
 ${REPO}/com/woorea/quantum-client/${V}/quantum-client-${V}.jar:\
 ${REPO}/com/woorea/quantum-model/${V}/quantum-model-${V}.jar:\
+${REPO}/com/woorea/ceilometer-client/${V}/ceilometer-client-${V}.jar:\
+${REPO}/com/woorea/ceilometer-model/${V}/ceilometer-model-${V}.jar:\
 "
 
 #${REPO}/com/woorea/openstack-examples/${V}/openstack-examples-${V}.jar:\
 #${REPO}/com/woorea/openstack-console/${V}/openstack-console-${V}.jar:\
 
-#${REPO}/com/woorea/ceilometer-client/${V}/ceilometer-client-${V}.jar:\
-#${REPO}/com/woorea/ceilometer-model/${V}/ceilometer-model-${V}.jar:\
 
 JERSEY=${JERSEY:-1}
 
