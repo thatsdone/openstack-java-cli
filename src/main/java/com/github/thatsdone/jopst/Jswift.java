@@ -39,6 +39,9 @@ import java.util.List;
 import com.github.thatsdone.jopst.Jopst;
 import com.github.thatsdone.jopst.Utils;
 
+import org.codehaus.jackson.type.TypeReference;
+import org.codehaus.jackson.map.ObjectMapper;
+
 public class Jswift {
 
     private static Jopst jopst;
@@ -70,17 +73,31 @@ public class Jswift {
             Swift swiftClient = new Swift(swiftEndpoint);
             swiftClient.token(access.getToken().getId());
 
-        if (command.equals("list1")) {
-
-            List<Container> containers;
-            containers = swiftClient.containers().list().execute();
-            util.printJson(containers);
-        } else if (command.equals("list")) {
-
+        if (command.equals("list")) {
+            /*
             Container container;
             container = swiftClient.containers().show(args[1]).execute();
-            util.printJson(container);
+            */
+            /*
+             * FIXME(thatsdone):
+             * A POC implementation using a work around in
+             * openstack-java-sdk layer which returns a String, not
+             * a List<Container>. The below does deserialization by itself.
+             */
+            String container = swiftClient.containers().list().execute();
+            //System.out.println("result: " + container);
+            //util.printJson(container);
+            try {
+                List<Container>containerObj =
+                    new ObjectMapper()
+                    .readValue(container,
+                               new TypeReference<List<Container>>(){});
+                // Note that the below dows not work.
+                //              .readValue(container, List<Container>);
+                util.printJson(containerObj);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-
     }
 }
