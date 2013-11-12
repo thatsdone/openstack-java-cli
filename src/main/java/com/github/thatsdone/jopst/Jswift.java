@@ -49,52 +49,40 @@ public class Jswift {
 
     public static void swift(String[] args) {
         if(jopst.isDebug()) {
-            System.out.println("token() called."); 
+            System.out.println("swift() called."); 
         }
 
         String command = args[0];
 
-            Keystone keystoneClient = new Keystone(jopst.getOsAuthUrl());
+        Keystone keystoneClient = new Keystone(jopst.getOsAuthUrl());
 
-            // Set account information, and issue an authentication request.
-            Access access = keystoneClient.tokens()
-                .authenticate(new UsernamePassword(jopst.getOsUsername(),
+        // Set account information, and issue an authentication request.
+        Access access = keystoneClient.tokens()
+            .authenticate(new UsernamePassword(jopst.getOsUsername(),
                                                    jopst.getOsPassword()))
-                .withTenantName(jopst.getOsTenantName())
-                .execute();
+            .withTenantName(jopst.getOsTenantName())
+            .execute();
 
-            String swiftEndpoint = KeystoneUtils
-                .findEndpointURL(access.getServiceCatalog(),
+        String swiftEndpoint = KeystoneUtils
+            .findEndpointURL(access.getServiceCatalog(),
                                  "object-store", null, "public");
-            if (jopst.isDebug()) {
-                System.out.println("DEBUG: " + swiftEndpoint);
-            }
-            // Create a Nova client object.
-            Swift swiftClient = new Swift(swiftEndpoint);
-            swiftClient.token(access.getToken().getId());
+        if (jopst.isDebug()) {
+            System.out.println("DEBUG: " + swiftEndpoint);
+        }
+        // Create a Nova client object.
+        Swift swiftClient = new Swift(swiftEndpoint);
+        swiftClient.token(access.getToken().getId());
 
         if (command.equals("list")) {
             /*
-            Container container;
-            container = swiftClient.containers().show(args[1]).execute();
-            */
-            /*
-             * FIXME(thatsdone):
-             * A POC implementation using a work around in
-             * openstack-java-sdk layer which returns a String, not
-             * a List<Container>. The below does deserialization by itself.
+             * NOTE(thatsdone):
+             * The below assumes a special version of Swift client class
+             * which returns List<Container> class.
              */
-            String container = swiftClient.containers().list().execute();
-            //System.out.println("result: " + container);
-            //util.printJson(container);
             try {
-                List<Container>containerObj =
-                    new ObjectMapper()
-                    .readValue(container,
-                               new TypeReference<List<Container>>(){});
-                // Note that the below dows not work.
-                //              .readValue(container, List<Container>);
-                util.printJson(containerObj);
+                List<Container> containers = swiftClient.containers()
+                    .list().queryParam("format", "json").execute();
+                util.printJson(containers);
             } catch (Exception e) {
                 e.printStackTrace();
             }
