@@ -47,12 +47,8 @@ public class Jswift {
     private static Jopst jopst;
     private static Utils util;
 
-    public static void swift(String[] args) {
-        if(jopst.isDebug()) {
-            System.out.println("swift() called."); 
-        }
 
-        String command = args[0];
+    private static Swift getSwiftClient() {
 
         Keystone keystoneClient = new Keystone(jopst.getOsAuthUrl());
 
@@ -73,19 +69,74 @@ public class Jswift {
         Swift swiftClient = new Swift(swiftEndpoint);
         swiftClient.token(access.getToken().getId());
 
+        return swiftClient;
+    }
+
+    public static void swift(String[] args) {
+        if(jopst.isDebug()) {
+            System.out.println("swift() called."); 
+        }
+
+        String command = args[0];
+
+
         if (command.equals("list")) {
             /*
              * NOTE(thatsdone):
              * The below assumes a special version of Swift client class
              * which returns List<Container> class.
              */
-            try {
-                List<Container> containers = swiftClient.containers()
-                    .list().queryParam("format", "json").execute();
-                util.printJson(containers);
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (args.length == 1) {
+
+                Swift swiftClient = getSwiftClient();
+                try {
+                    List<Container> containers = swiftClient.containers()
+                        .list().queryParam("format", "json").execute();
+                    util.printJson(containers);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            } else if (args.length >= 2) {
+                Swift swiftClient = getSwiftClient();
+                try {
+                    List<com.woorea.openstack.swift.model.Object> objects =
+                        swiftClient.containers()
+                        .container(args[1])
+                        .list().queryParam("format", "json").execute();
+                    util.printJson(objects);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             }
+
+        } else if (command.equals("stat")) {
+
+            if (args.length <= 2) {
+                // HEAD /v1/{account}/{container} or HEAD /v1/{account}x
+                Swift swiftClient = getSwiftClient();
+                try {
+                    // FIXME(thatsdone):
+                    // HEAD /v1/{account} should use account()
+                    String result = swiftClient.containers()
+                        .show(args.length >= 2 ? args[1] : "")
+                        .queryParam("format", "json").execute();
+                    System.out.println(result);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else if (args.length == 3) {
+                // HEAD /v1/{account}/{container}/{object}
+                Swift swiftClient = getSwiftClient();
+                String result = swiftClient.containers()
+                    .container(args[1])
+                    .show(args[2])
+                    .queryParam("format", "json").execute();
+                System.out.println(result);
+            }
+
         }
+
     }
 }

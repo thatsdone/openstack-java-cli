@@ -185,6 +185,7 @@ public class Jopst {
         neutronCmds.put("router-list", "network");
 
         swiftCmds.put("list", "swift");
+        swiftCmds.put("stat", "swift");
 
         keystoneCmds.put("token-validate", "token");
 
