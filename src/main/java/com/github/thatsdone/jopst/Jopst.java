@@ -191,7 +191,7 @@ public class Jopst {
 
         heatCmds.put("stack-list", "stack");
 
-        //ceilometerCmds.put("meter-list", "ceilometer");
+        ceilometerCmds.put("meter-list", "ceilometer");
         //ceilometerCmds.put("resource-list", "ceilometer");
 
         cmdMap.put("nova", novaCmds);

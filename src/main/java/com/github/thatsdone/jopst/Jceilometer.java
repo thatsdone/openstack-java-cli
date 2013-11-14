@@ -50,7 +50,6 @@ public class Jceilometer {
 
         String command = args[0];
 
-
             Keystone keystoneClient = new Keystone(jopst.getOsAuthUrl());
 
             // Set account information, and issue an authentication request.
@@ -71,9 +70,13 @@ public class Jceilometer {
             ceilometerClient.token(access.getToken().getId());
 
         if (command.equals("meter-list")) {
-            //List<Meter> meters;
-            //meters = ceilometerClient.meters().list().execute();
-            //util.printJson(meters);
+			try {
+				List<Meter> meters;
+				meters = ceilometerClient.meters().list().execute();
+				util.printJson(meters);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
         } else if (command.equals("resource-list")) {
             //List<Resource> resources;
