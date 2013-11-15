@@ -27,6 +27,7 @@ import com.woorea.openstack.keystone.model.authentication.UsernamePassword;
 import com.woorea.openstack.keystone.utils.KeystoneUtils;
 
 import com.woorea.openstack.glance.Glance;
+import com.woorea.openstack.glance.model.Image;
 import com.woorea.openstack.glance.model.Images;
 
 import java.lang.System;
@@ -39,6 +40,30 @@ public class Jglance {
     private static Jopst jopst;
     private static Utils util;
 
+    private static Glance getGlanceClient() {
+        Keystone keystoneClient = new Keystone(jopst.getOsAuthUrl());
+
+        // Set account information, and issue an authentication request.
+        Access access = keystoneClient.tokens()
+            .authenticate(new UsernamePassword(jopst.getOsUsername(),
+                                               jopst.getOsPassword()))
+            .withTenantName(jopst.getOsTenantName())
+            .execute();
+
+        String glanceEndpoint = KeystoneUtils
+            .findEndpointURL(access.getServiceCatalog(),
+                             "image", null, "public");
+        if (jopst.isDebug()) {
+            System.out.println("DEBUG: " + glanceEndpoint);
+        }
+        // Create a Glance client object.
+        Glance glanceClient = new Glance(glanceEndpoint);
+        glanceClient.token(access.getToken().getId());
+
+        return glanceClient;
+    }
+
+
     public static void image(String[] args) {
         if(jopst.isDebug()) {
             System.out.println("images() called."); 
@@ -47,29 +72,31 @@ public class Jglance {
         String command = args[0];
 
         if (command.equals("image-list")) {
-            Keystone keystoneClient = new Keystone(jopst.getOsAuthUrl());
-
-            // Set account information, and issue an authentication request.
-            Access access = keystoneClient.tokens()
-                .authenticate(new UsernamePassword(jopst.getOsUsername(),
-                                                   jopst.getOsPassword()))
-                .withTenantName(jopst.getOsTenantName())
-                .execute();
-
-            String glanceEndpoint = KeystoneUtils
-                .findEndpointURL(access.getServiceCatalog(),
-                                 "image", null, "public");
-            if (jopst.isDebug()) {
-                System.out.println("DEBUG: " + glanceEndpoint);
+            boolean detail = false;
+            if (args.length > 1 && args[1].equals("--detail")) {
+                detail = true;
             }
-            // Create a Glance client object.
-            Glance glanceClient = new Glance(glanceEndpoint);
-            glanceClient.token(access.getToken().getId());
+
+            Glance glanceClient = getGlanceClient();
 
             Images images;
-            images = glanceClient.images().list(true).execute();
+            images = glanceClient.images().list(detail).execute();
 
             util.printJson(images);
+
+        } else if (command.equals("image-show")) {
+            if (args.length <= 1) {
+                System.out.println("Specify image-id");
+                System.exit(0);
+            }
+
+            Glance glanceClient = getGlanceClient();
+
+            Image image;
+            image = glanceClient.images().show(args[1]).execute();
+
+            util.printJson(image);
+
         }
     }
 }

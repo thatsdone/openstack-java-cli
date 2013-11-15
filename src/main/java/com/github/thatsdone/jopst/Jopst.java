@@ -176,6 +176,7 @@ public class Jopst {
         novaCmds.put("volume-list", "volume");
 
         glanceCmds.put("image-list", "image");
+        glanceCmds.put("image-show", "image");
 
         cinderCmds.put("list", "volumes");
 
