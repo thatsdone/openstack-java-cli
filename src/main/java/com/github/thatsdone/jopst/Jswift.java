@@ -35,6 +35,7 @@ import com.woorea.openstack.swift.model.ObjectForUpload;
 
 import java.lang.System;
 import java.util.List;
+import java.util.Map;
 
 import com.github.thatsdone.jopst.Jopst;
 import com.github.thatsdone.jopst.Utils;
@@ -113,29 +114,38 @@ public class Jswift {
 
         } else if (command.equals("stat")) {
 
-            if (args.length <= 2) {
-                // HEAD /v1/{account}/{container} or HEAD /v1/{account}x
-                Swift swiftClient = getSwiftClient();
-                try {
-                    // FIXME(thatsdone):
-                    // HEAD /v1/{account} should use account()
-                    String result = swiftClient.containers()
-                        .show(args.length >= 2 ? args[1] : "")
-                        .queryParam("format", "json").execute();
-                    System.out.println(result);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else if (args.length == 3) {
-                // HEAD /v1/{account}/{container}/{object}
-                Swift swiftClient = getSwiftClient();
-                String result = swiftClient.containers()
-                    .container(args[1])
-                    .show(args[2])
-                    .queryParam("format", "json").execute();
-                System.out.println(result);
-            }
+            Swift swiftClient = getSwiftClient();
 
+            try {
+                // FIXME(thatsdone):
+                Map<String, String> res = null;
+
+                // HEAD /v1/{account}
+                if (args.length == 1) {
+                    res = swiftClient.account()
+                        .showAccount().getResponse().headers();
+
+                // HEAD /v1/{account}/{container}
+                } else if (args.length == 2) {
+                    res = swiftClient.containers()
+                        .show(args[1]).getResponse().headers();
+
+                // HEAD /v1/{account}/{container}/{object}
+                } else if (args.length == 3) {
+                    res = swiftClient.containers()
+                        .container(args[1])
+                        .show(args[2])
+                        .getResponse().headers();
+                }
+
+                for (String key : res.keySet()) {
+                    System.out.println(String.format("%s : %s",
+                                                     key, res.get(key)));
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
     }
