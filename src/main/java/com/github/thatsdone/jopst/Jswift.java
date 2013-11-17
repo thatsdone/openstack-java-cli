@@ -36,6 +36,8 @@ import com.woorea.openstack.swift.model.ObjectForUpload;
 import java.lang.System;
 import java.util.List;
 import java.util.Map;
+import java.io.InputStream;
+import java.io.FileInputStream;
 
 import com.github.thatsdone.jopst.Jopst;
 import com.github.thatsdone.jopst.Utils;
@@ -146,7 +148,126 @@ public class Jswift {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
 
+        } else if (command.equals("post")) {
+
+            Swift swiftClient = getSwiftClient();
+
+            // NOTE(thatsdone): swift post is not POST but PUT.
+            // See API references. http://api.openstack.org/
+            try {
+                Map<String, String> res = null;
+
+                // PUT /v1/{account}/{conntainer}
+                if (args.length == 2) {
+                    res = swiftClient.containers()
+                        .create(args[1]).getResponse().headers();
+
+                // PUT /v1/{account}/{conntainer}/{object}
+                } else if (args.length == 3) {
+                    res = swiftClient.containers()
+                        .container(args[1])
+                        .create(args[2]).getResponse().headers();
+                }
+
+                for (String key : res.keySet()) {
+                    System.out.println(String.format("%s : %s",
+                                                     key, res.get(key)));
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        } else if (command.equals("delete")) {
+
+            Swift swiftClient = getSwiftClient();
+
+            try {
+                Map<String, String> res = null;
+
+                // DELETE /v1/{account}/{conntainer}
+                if (args.length == 2) {
+                    res = swiftClient.containers()
+                        .delete(args[1]).getResponse().headers();
+
+                // DELETE /v1/{account}/{conntainer}/{object}
+                } else if (args.length == 3) {
+                    res = swiftClient.containers()
+                        .container(args[1])
+                        .delete(args[2]).getResponse().headers();
+                }
+                for (String key : res.keySet()) {
+                    System.out.println(String.format("%s : %s",
+                                                     key, res.get(key)));
+                }
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        } else if (command.equals("upload")) {
+
+            Swift swiftClient = getSwiftClient();
+
+            try {
+                Map<String, String> res = null;
+
+                // PUT /v1/{account}/{conntainer}/{object}
+                // Only a single file upload at a time is supported currently.
+                if (args.length >= 3) {
+
+                    ObjectForUpload upload = new ObjectForUpload();
+                    InputStream is = new FileInputStream(args[2]);
+
+                    upload.setContainer(args[1]);
+                    upload.setName(args[2]);
+                    upload.setInputStream(is);
+                    
+                    res = swiftClient.containers()
+                        .container(args[1])
+                        .upload(upload).getResponse().headers();
+
+                    for (String key : res.keySet()) {
+                        System.out.println(String.format("%s : %s",
+                                                         key, res.get(key)));
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        } else if (command.equals("download")) {
+
+            Swift swiftClient = getSwiftClient();
+
+            try {
+                Map<String, String> headers = null;
+                
+                // GET /v1/{account}/{conntainer}/{object}
+                // Only a single file download at a time is supported currently.
+                if (args.length >= 3) {
+
+                    ObjectDownload download = null;
+
+                    download = swiftClient.containers()
+                        .container(args[1])
+                        .download(args[2]).execute();
+
+                    util.write(download.getInputStream(), args[2]);
+
+                    /*
+                    for (String key : res.keySet()) {
+                        System.out.println(String.format("%s : %s",
+                                                         key, res.get(key)));
+                    }
+                    */
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

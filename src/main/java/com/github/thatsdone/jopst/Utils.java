@@ -23,6 +23,14 @@ package com.github.thatsdone.jopst;
 
 import java.lang.System;
 import java.util.Map;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import java.util.logging.*;
 
 import org.codehaus.jackson.map.ObjectMapper;
@@ -83,4 +91,20 @@ public class Utils {
         }
     }
 
+    //from openstack-java-sdk/openstack-examples/../SwiftExample.java
+    public static void write(InputStream is, String path) {
+        try {
+            OutputStream stream =
+                new BufferedOutputStream(new FileOutputStream(path));
+            int bufferSize = 1024;
+            byte[] buffer = new byte[bufferSize];
+            int len = 0;
+            while ((len = is.read(buffer)) != -1) {
+                stream.write(buffer, 0, len);
+            }
+            stream.close();
+        } catch(IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
 }

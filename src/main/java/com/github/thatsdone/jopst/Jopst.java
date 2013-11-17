@@ -187,6 +187,10 @@ public class Jopst {
 
         swiftCmds.put("list", "swift");
         swiftCmds.put("stat", "swift");
+        swiftCmds.put("post", "swift");
+        swiftCmds.put("delete", "swift");
+        swiftCmds.put("upload", "swift");
+        swiftCmds.put("download", "swift");
 
         keystoneCmds.put("token-validate", "token");
 
