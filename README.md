@@ -72,8 +72,12 @@ Either of the following (currently):
 
  * nova
  * cinder
- * heat
+ * glance
+ * neutron
+ * swift
  * keystone
+ * heat
+ * ceilometer
 
 **COMMON OPTIONS**
 
@@ -89,6 +93,7 @@ Please find the currently implemented sub commands below.
 **SUB-COMMAND SPECIFIC ARGUMENTS/OPTIONS**
 
 Almost the same as (supported) nova/keystone/cinder command.
+Please note that only subsets of sub-command options are supported.
 
 **NOTES**
 
@@ -102,6 +107,7 @@ $ bin/jopst
 Usage:
     jopst nova list
     jopst nova show
+    jopst nova live-migration
     jopst nova host-list
     jopst nova host-describe
     jopst nova hypervisor-list
@@ -112,6 +118,7 @@ Usage:
     jopst nova service-enable
     jopst nova service-disable
     jopst nova usage-list
+    jopst nova rate-limits
     jopst nova aggregate-list
     jopst nova aggregate-details
     jopst nova aggregate-create
@@ -121,16 +128,37 @@ Usage:
     jopst nova aggregate-update
     jopst nova aggregate-set-metadata
     jopst nova flavor-list
-    jopst nova live-migration
     jopst nova availability-zone-list
     jopst nova list-extensions
     jopst nova image-list
     jopst nova volume-list
-    jopst nova rate-limits
+    jopst nova migration-list
     jopst cinder list
-    jopst heat stack-list
+    jopst glance image-list
+    jopst glance image-show
+    jopst neutron net-list
+    jopst neutron subnet-list
+    jopst neutron port-list
+    jopst neutron router-list
+    jopst swift list
+    jopst swift stat
+    jopst swift post
+    jopst swift delete
+    jopst swift upload
+    jopst swift download
     jopst keystone token-validate
+    jopst heat stack-list
+    jopst ceilometer meter-list
 </pre>
+
+REFERENCE
+-------------
+
+* Please find some more information about the forked version of
+  OpenStack Java SDK below:
+
+  https://github.com/thatsdone/openstack-java-sdk/wiki/README
+
 
 TODO
 -------------
