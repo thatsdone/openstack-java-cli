@@ -146,6 +146,7 @@ Usage:
     jopst swift delete
     jopst swift upload
     jopst swift download
+    jopst keystone token-get
     jopst keystone token-validate
     jopst heat stack-list
     jopst ceilometer meter-list

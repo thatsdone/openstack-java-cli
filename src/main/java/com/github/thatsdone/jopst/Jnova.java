@@ -49,6 +49,7 @@ import com.woorea.openstack.nova.model.Extensions;
 import com.woorea.openstack.nova.model.Images;
 import com.woorea.openstack.nova.model.Volumes;
 import com.woorea.openstack.nova.model.Limits;
+import com.woorea.openstack.nova.model.ServerMigrations;
 
 import java.lang.System;
 import java.lang.Integer;
@@ -233,7 +234,15 @@ public class Jnova {
             } else {
                 System.out.println("Specify server_id and hostname");
             }
+
+        } else if (command.equals("migration-list")) {
+            // migrations (GET /os-migrations)
+			Nova novaClient = getNovaClient();
+			ServerMigrations migrations = novaClient.servers()
+				.migrations().execute();
+			util.printJson(migrations);
         }
+
     }
 
     public static void host(String[] args) {

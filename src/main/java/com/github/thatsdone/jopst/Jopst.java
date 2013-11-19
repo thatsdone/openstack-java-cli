@@ -40,6 +40,7 @@
  *    jopst nova rate-limits
  *    jopst cinder list
  *    jopst heat stack-list
+ *    jopst keystone token-get
  *    jopst keystone token-validate
  * 
  *  Author: Masanori Itoh <masanori.itoh@gmail.com>
@@ -174,6 +175,7 @@ public class Jopst {
         novaCmds.put("list-extensions", "extensions");
         novaCmds.put("image-list", "image");
         novaCmds.put("volume-list", "volume");
+        novaCmds.put("migration-list", "server");
 
         glanceCmds.put("image-list", "image");
         glanceCmds.put("image-show", "image");
@@ -192,6 +194,7 @@ public class Jopst {
         swiftCmds.put("upload", "swift");
         swiftCmds.put("download", "swift");
 
+        keystoneCmds.put("token-get", "token");
         keystoneCmds.put("token-validate", "token");
 
         heatCmds.put("stack-list", "stack");

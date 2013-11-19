@@ -42,8 +42,18 @@ public class Jkeystone {
         }
 
         String command = args[0];
+        if (command.equals("token-get")) {
+            Keystone keystoneClient = new Keystone(jopst.getOsAuthUrl());
 
-        if (command.equals("token-validate")) {
+            Access access = keystoneClient.tokens()
+                .authenticate(new UsernamePassword(jopst.getOsUsername(),
+                                                   jopst.getOsPassword()))
+                .withTenantName(jopst.getOsTenantName())
+                .execute();
+            util.printJson(access);
+
+
+        } if (command.equals("token-validate")) {
 
             // this is a poc code to validate a token using an admin token
             // using an extended feature of openstack-java-sdk.
