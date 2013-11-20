@@ -39,9 +39,14 @@
  *    jopst nova volume-list
  *    jopst nova rate-limits
  *    jopst cinder list
- *    jopst heat stack-list
  *    jopst keystone token-get
  *    jopst keystone token-validate
+ *    jopst heat stack-list
+ *    jopst ceilometer meter-list
+ *    jopst ceilometer statistics
+ *    jopst ceilometer sample-list
+ *    jopst ceilometer resource-list
+ *    jopst ceilometer resource-show
  * 
  *  Author: Masanori Itoh <masanori.itoh@gmail.com>
  * 
@@ -200,7 +205,10 @@ public class Jopst {
         heatCmds.put("stack-list", "stack");
 
         ceilometerCmds.put("meter-list", "ceilometer");
-        //ceilometerCmds.put("resource-list", "ceilometer");
+        ceilometerCmds.put("statistics", "ceilometer");
+        ceilometerCmds.put("sample-list", "ceilometer");
+        ceilometerCmds.put("resource-list", "ceilometer");
+        ceilometerCmds.put("resource-show", "ceilometer");
 
         cmdMap.put("nova", novaCmds);
         cmdMap.put("cinder", cinderCmds);

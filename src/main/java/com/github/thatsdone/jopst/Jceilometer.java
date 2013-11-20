@@ -70,18 +70,42 @@ public class Jceilometer {
             ceilometerClient.token(access.getToken().getId());
 
         if (command.equals("meter-list")) {
-			try {
-				List<Meter> meters;
-				meters = ceilometerClient.meters().list().execute();
-				util.printJson(meters);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+            try {
+                List<Meter> meters;
+                meters = ceilometerClient.meters().list().execute();
+                util.printJson(meters);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        } else if (command.equals("statistics")) {
+            try {
+                List<Statistics> statistics;
+                statistics = ceilometerClient.meters().statistics(args[1]).execute();
+                util.printJson(statistics);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
         } else if (command.equals("resource-list")) {
-            //List<Resource> resources;
-            //meters = (List<Resource>)ceilometerClient.resources().list().execute();
-            //util.printJson(resources);
+            try {
+                List<Resource> resources;
+                resources = ceilometerClient.resources().list().execute();
+                util.printJson(resources);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        } else if (command.equals("sample-list")) {
+            try {
+                List<Sample> samples;
+                samples = ceilometerClient.meters().show(args[1]).execute();
+                util.printJson(samples);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+
     }
 }
