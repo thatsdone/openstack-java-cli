@@ -134,6 +134,9 @@ Usage:
     jopst nova volume-list
     jopst nova migration-list
     jopst cinder list
+    jopst cinder create
+    jopst cinder show
+    jopst cinder delete
     jopst glance image-list
     jopst glance image-show
     jopst neutron net-list
@@ -150,6 +153,10 @@ Usage:
     jopst keystone token-validate
     jopst heat stack-list
     jopst ceilometer meter-list
+    jopst ceilometer statistics
+    jopst ceilometer sample-list
+    jopst ceilometer resource-list
+    jopst ceilometer resource-show
 </pre>
 
 REFERENCE
