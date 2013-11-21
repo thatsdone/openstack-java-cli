@@ -27,9 +27,12 @@ import com.woorea.openstack.keystone.model.authentication.UsernamePassword;
 import com.woorea.openstack.keystone.utils.KeystoneUtils;
 
 import com.woorea.openstack.cinder.Cinder;
+import com.woorea.openstack.cinder.model.Volume;
 import com.woorea.openstack.cinder.model.Volumes;
+import com.woorea.openstack.cinder.model.VolumeForCreate;
 
 import java.lang.System;
+import java.lang.Integer;
 
 import  com.github.thatsdone.jopst.Jopst;
 import  com.github.thatsdone.jopst.Utils;
@@ -38,6 +41,46 @@ public class Jcinder {
 
     private static Jopst jopst;
     private static Utils util;
+
+    /**
+     * getCinderClient() : returns a valid Cinder client class instance.
+     *
+     * @param   osAuthUrl    OS_AUTH_URL
+     * @param   osPassword   OS_PASSWORD
+     * @param   osTenantName OS_TENANT_NAME
+     * @param   osUsername   OS_USERNAME
+     * @return  Nova class (of openstack-java-sdk) instance
+     */
+    public static Cinder getCinderClient() {
+        return getCinderClient(jopst.getOsAuthUrl(),
+                            jopst.getOsPassword(),
+                            jopst.getOsTenantName(),
+                            jopst.getOsUsername());
+    }
+
+    public static Cinder getCinderClient(String osAuthUrl, String osPassword,
+                                     String osTenantName, String osUsername) {
+        Keystone keystoneClient = new Keystone(jopst.getOsAuthUrl());
+
+        // Set account information, and issue an authentication request.
+        Access access = keystoneClient.tokens()
+            .authenticate(new UsernamePassword(jopst.getOsUsername(),
+                                               jopst.getOsPassword()))
+            .withTenantName(jopst.getOsTenantName())
+            .execute();
+
+        String cinderEndpoint = KeystoneUtils
+            .findEndpointURL(access.getServiceCatalog(),
+                                 "volume", null, "public");
+        if (jopst.isDebug()) {
+            System.out.println("DEBUG: " + cinderEndpoint);
+        }
+        // Create a Cinder client object.
+        Cinder cinderClient = new Cinder(cinderEndpoint);
+        cinderClient.token(access.getToken().getId());
+
+        return cinderClient;
+    }
 
     public static void volumes(String[] args) {
         if(jopst.isDebug()) {
@@ -59,24 +102,7 @@ public class Jcinder {
                     }
                 }
             }
-            Keystone keystoneClient = new Keystone(jopst.getOsAuthUrl());
-
-            // Set account information, and issue an authentication request.
-            Access access = keystoneClient.tokens()
-                .authenticate(new UsernamePassword(jopst.getOsUsername(),
-                                                   jopst.getOsPassword()))
-                .withTenantName(jopst.getOsTenantName())
-                .execute();
-
-            String cinderEndpoint = KeystoneUtils
-                .findEndpointURL(access.getServiceCatalog(),
-                                 "volume", null, "public");
-            if (jopst.isDebug()) {
-                System.out.println("DEBUG: " + cinderEndpoint);
-            }
-            // Create a Nova client object.
-            Cinder cinderClient = new Cinder(cinderEndpoint);
-            cinderClient.token(access.getToken().getId());
+            Cinder cinderClient = getCinderClient();
 
             Volumes volumes;
             if (allTenants) {
@@ -86,6 +112,43 @@ public class Jcinder {
                 volumes = cinderClient.volumes().list(true).execute();
             }
             util.printJson(volumes);
+
+        } else if (command.equals("create")) {
+            VolumeForCreate v = new VolumeForCreate();
+
+            for(int i = 0; i < args.length; i++) {
+                if (args[i].equals("--display-name")) {
+                    if (args.length < i + 2) {
+                        v.setName(args[i + 1]);
+                    }
+                }
+            }
+            v.setSize(new Integer(args[args.length - 1]));
+
+            Cinder cinderClient = getCinderClient();
+            Volume volume;
+            volume = cinderClient.volumes().create(v).execute();
+            util.printJson(volume);
+
+
+        } else if (command.equals("show")) {
+
+            if (args.length <= 1) {
+                System.exit(0);
+            }
+            Cinder cinderClient = getCinderClient();
+            Volume volume;
+            volume = cinderClient.volumes().show(args[1]).execute();
+            util.printJson(volume);
+
+        } else if (command.equals("delete")) {
+            if (args.length <= 1) {
+                System.exit(0);
+            }
+            Cinder cinderClient = getCinderClient();
+            cinderClient.volumes().delete(args[1]).execute();
+            ;
         }
+
     }
 }

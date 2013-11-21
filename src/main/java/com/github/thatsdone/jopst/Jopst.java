@@ -186,6 +186,9 @@ public class Jopst {
         glanceCmds.put("image-show", "image");
 
         cinderCmds.put("list", "volumes");
+        cinderCmds.put("create", "volumes");
+        cinderCmds.put("show", "volumes");
+        cinderCmds.put("delete", "volumes");
 
         neutronCmds.put("net-list", "network");
         neutronCmds.put("subnet-list", "network");
