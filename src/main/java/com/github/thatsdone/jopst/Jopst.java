@@ -189,6 +189,7 @@ public class Jopst {
         cinderCmds.put("create", "volumes");
         cinderCmds.put("show", "volumes");
         cinderCmds.put("delete", "volumes");
+        cinderCmds.put("snapshot-list", "volumes");
 
         neutronCmds.put("net-list", "network");
         neutronCmds.put("subnet-list", "network");

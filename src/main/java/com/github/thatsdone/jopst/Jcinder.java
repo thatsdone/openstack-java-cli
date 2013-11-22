@@ -30,6 +30,8 @@ import com.woorea.openstack.cinder.Cinder;
 import com.woorea.openstack.cinder.model.Volume;
 import com.woorea.openstack.cinder.model.Volumes;
 import com.woorea.openstack.cinder.model.VolumeForCreate;
+import com.woorea.openstack.cinder.model.Snapshot;
+import com.woorea.openstack.cinder.model.Snapshots;
 
 import java.lang.System;
 import java.lang.Integer;
@@ -148,6 +150,19 @@ public class Jcinder {
             Cinder cinderClient = getCinderClient();
             cinderClient.volumes().delete(args[1]).execute();
             ;
+        } else if (command.equals("snapshot-list")) {
+            boolean allTenants = true;
+            Cinder cinderClient = getCinderClient();
+
+            Snapshots snapshots;
+            if (allTenants) {
+                snapshots= cinderClient.snapshots()
+                    .list(true).queryParam("all_tenants", "1").execute();
+            } else {
+                snapshots = cinderClient.snapshots().list(true).execute();
+            }
+            util.printJson(snapshots);
+
         }
 
     }
