@@ -158,16 +158,19 @@ public class Jswift {
             try {
                 Map<String, String> res = null;
 
-                // PUT /v1/{account}/{conntainer}
+                // PUT /v1/{account}/{container}
                 if (args.length == 2) {
                     res = swiftClient.containers()
                         .create(args[1]).getResponse().headers();
 
-                // PUT /v1/{account}/{conntainer}/{object}
+                // PUT /v1/{account}/{container}/{object}
                 } else if (args.length == 3) {
-                    res = swiftClient.containers()
-                        .container(args[1])
-                        .create(args[2]).getResponse().headers();
+                    //impossible to create a zero-sized object via post
+                    //res = swiftClient.containers()
+                    //    .container(args[1])
+                    //    .create(args[2]).getResponse().headers();
+                    return;
+					
                 }
 
                 for (String key : res.keySet()) {
@@ -186,12 +189,12 @@ public class Jswift {
             try {
                 Map<String, String> res = null;
 
-                // DELETE /v1/{account}/{conntainer}
+                // DELETE /v1/{account}/{container}
                 if (args.length == 2) {
                     res = swiftClient.containers()
                         .delete(args[1]).getResponse().headers();
 
-                // DELETE /v1/{account}/{conntainer}/{object}
+                // DELETE /v1/{account}/{container}/{object}
                 } else if (args.length == 3) {
                     res = swiftClient.containers()
                         .container(args[1])
@@ -214,7 +217,7 @@ public class Jswift {
             try {
                 Map<String, String> res = null;
 
-                // PUT /v1/{account}/{conntainer}/{object}
+                // PUT /v1/{account}/{container}/{object}
                 // Only a single file upload at a time is supported currently.
                 if (args.length >= 3) {
 
@@ -246,7 +249,7 @@ public class Jswift {
             try {
                 Map<String, String> headers = null;
                 
-                // GET /v1/{account}/{conntainer}/{object}
+                // GET /v1/{account}/{container}/{object}
                 // Only a single file download at a time is supported currently.
                 if (args.length >= 3) {
 
