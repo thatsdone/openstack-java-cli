@@ -96,6 +96,16 @@ public class Jceilometer {
                 e.printStackTrace();
             }
 
+        } else if (command.equals("resource-show")) {
+            System.out.println("DEBUG resource-show");
+            try {
+                Resource resource;
+                resource = ceilometerClient.resources().show(args[1]).execute();
+                util.printJson(resource);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         } else if (command.equals("sample-list")) {
             try {
                 List<Sample> samples;
