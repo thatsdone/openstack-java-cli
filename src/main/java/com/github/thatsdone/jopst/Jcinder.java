@@ -51,7 +51,7 @@ public class Jcinder {
      * @param   osPassword   OS_PASSWORD
      * @param   osTenantName OS_TENANT_NAME
      * @param   osUsername   OS_USERNAME
-     * @return  Nova class (of openstack-java-sdk) instance
+     * @return  Cinder class (of openstack-java-sdk) instance
      */
     public static Cinder getCinderClient() {
         return getCinderClient(jopst.getOsAuthUrl(),
@@ -120,22 +120,48 @@ public class Jcinder {
 
             for(int i = 0; i < args.length; i++) {
                 if (args[i].equals("--display-name")) {
-                    if (args.length < i + 2) {
+                    if (args.length > i + 1) {
                         v.setName(args[i + 1]);
+                        i++;
                     }
+
+                } else if (args[i].equals("--snapshot-id")) {
+                    //FIXME(thatsdone): snapshot-id is uuid, I think...
+                    i++;
+
+                } else if (args[i].equals("--source-volid")) {
+                    //FIXME(thatsdone): enhance sdk
+                    i++;
+
+                } else if (args[i].equals("--image-id")) {
+                    //FIXME(thatsdone): enhance sdk
+                    i++;
+
+                } else if (args[i].equals("--display-description")) {
+                    v.setDescription(args[i + 1]);
+                    i++;
+
+                } else if (args[i].equals("--volume-type")) {
+                    //FIXME(thatsdone): enhance sdk
+                    i++;
+
+                } else if (args[i].equals("--availability-zone")) {
+                    v.setAvailabilityZone(args[i + 1]);
+                    i++;
+                } else if (args[i].equals("--metadata")) {
+                    //FIXME(thatsdone): TBD..
                 }
             }
             v.setSize(new Integer(args[args.length - 1]));
 
             Cinder cinderClient = getCinderClient();
-            Volume volume;
-            volume = cinderClient.volumes().create(v).execute();
+            Volume volume = cinderClient.volumes().create(v).execute();
             util.printJson(volume);
-
 
         } else if (command.equals("show")) {
 
             if (args.length <= 1) {
+                System.out.println("Specify volume id.");
                 System.exit(0);
             }
             Cinder cinderClient = getCinderClient();
@@ -145,11 +171,12 @@ public class Jcinder {
 
         } else if (command.equals("delete")) {
             if (args.length <= 1) {
+                System.out.println("Specify volume id.");
                 System.exit(0);
             }
             Cinder cinderClient = getCinderClient();
             cinderClient.volumes().delete(args[1]).execute();
-            ;
+
         } else if (command.equals("snapshot-list")) {
             boolean allTenants = true;
             Cinder cinderClient = getCinderClient();
@@ -164,6 +191,5 @@ public class Jcinder {
             util.printJson(snapshots);
 
         }
-
     }
 }
