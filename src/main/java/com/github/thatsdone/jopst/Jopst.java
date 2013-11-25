@@ -195,6 +195,10 @@ public class Jopst {
         neutronCmds.put("subnet-list", "network");
         neutronCmds.put("port-list", "network");
         neutronCmds.put("router-list", "network");
+        neutronCmds.put("router-list-on-l3-agent", "network");
+        neutronCmds.put("net-show", "network");
+        neutronCmds.put("net-create", "network");
+        neutronCmds.put("agent-list", "network");
 
         swiftCmds.put("list", "swift");
         swiftCmds.put("stat", "swift");
