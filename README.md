@@ -137,12 +137,17 @@ Usage:
     jopst cinder create
     jopst cinder show
     jopst cinder delete
+    jopst cinder snapshot-list
     jopst glance image-list
     jopst glance image-show
     jopst neutron net-list
     jopst neutron subnet-list
     jopst neutron port-list
     jopst neutron router-list
+    jopst neutron router-list-on-l3-agent
+    jopst neutron net-show
+    jopst neutron net-create
+    jopst neutron agent-list
     jopst swift list
     jopst swift stat
     jopst swift post
@@ -172,6 +177,7 @@ TODO
 -------------
 
 * Implement more sub-commands.
+* test code
 
 LICENSE
 -------------
