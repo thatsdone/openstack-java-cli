@@ -50,6 +50,7 @@ import com.woorea.openstack.nova.model.Images;
 import com.woorea.openstack.nova.model.Volumes;
 import com.woorea.openstack.nova.model.Limits;
 import com.woorea.openstack.nova.model.ServerMigrations;
+import com.woorea.openstack.nova.model.HostStatus;
 
 import java.lang.System;
 import java.lang.Integer;
@@ -237,10 +238,10 @@ public class Jnova {
 
         } else if (command.equals("migration-list")) {
             // migrations (GET /os-migrations)
-			Nova novaClient = getNovaClient();
-			ServerMigrations migrations = novaClient.servers()
-				.migrations().execute();
-			util.printJson(migrations);
+            Nova novaClient = getNovaClient();
+            ServerMigrations migrations = novaClient.servers()
+                .migrations().execute();
+            util.printJson(migrations);
         }
 
     }
@@ -287,6 +288,47 @@ public class Jnova {
             } else {
                 System.out.println("Specify hostname");
             }
+
+        } else if (command.equals("host-update")) {
+            boolean status = true;
+            boolean maintenance = false;
+            String host = null;
+
+            for (int i = 1; i < args.length; i++) {
+                if (args[i].equals("--status") && ++i < args.length) {
+                    if (args[i].equals("enable")) {
+                        status = true;
+                    } else if (args[i].equals("disable")) {
+                        status = false;
+                    }
+                } else if (args[i].equals("--maintenance") && ++i < args.length) {
+                    if (args[i].equals("enable")) {
+                        maintenance = true;
+                    } else if (args[i].equals("disable")) {
+                        maintenance = false;
+                    }
+                } else if (!args[i].startsWith("--")) {
+                    host = args[i];
+                }
+            }
+            if (host == null) {
+                System.out.println("Specify host.");
+                System.exit(0);
+            }
+            if (jopst.isDebug()) {
+                System.out.println("host: " + host + ", status: " + status +
+                                   " maintenance: " + maintenance);
+            }
+            Nova novaClient = getNovaClient();
+            HostStatus h = novaClient.hosts()
+                            .update(host, status, maintenance).execute();
+            util.printJson(h);
+            if (jopst.isDebug()) {
+                System.out.println(h);
+            }
+
+        } else if (command.equals("host-action")) {   
+            ;
         }
     }
 

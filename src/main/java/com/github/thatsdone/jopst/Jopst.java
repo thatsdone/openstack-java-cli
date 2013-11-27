@@ -158,6 +158,8 @@ public class Jopst {
         novaCmds.put("live-migration", "server");
         novaCmds.put("host-list", "host");
         novaCmds.put("host-describe", "host");
+        novaCmds.put("host-update", "host");
+        novaCmds.put("host-action", "host");
         novaCmds.put("hypervisor-list", "hypervisor");
         novaCmds.put("hypervisor-show", "hypervisor");
         novaCmds.put("hypervisor-stats", "hypervisor");
