@@ -39,8 +39,10 @@ import com.woorea.openstack.quantum.model.NetworkForCreate;
 import com.woorea.openstack.quantum.model.SubnetForCreate;
 import com.woorea.openstack.quantum.model.PortForCreate;
 import com.woorea.openstack.quantum.model.RouterForCreate;
-import com.woorea.openstack.quantum.model.GatewayInfo;
+import com.woorea.openstack.quantum.model.RouterForSetGateway;
+import com.woorea.openstack.quantum.model.RouterForAddInterface;
 import com.woorea.openstack.quantum.model.RouterInterface;
+import com.woorea.openstack.quantum.model.GatewayInfo;
 import com.woorea.openstack.quantum.model.HostRoute;
 import com.woorea.openstack.quantum.model.Agent;
 import com.woorea.openstack.quantum.model.Agents;
@@ -203,7 +205,17 @@ public class Jneutron {
             ;
 
         } if (command.equals("router-interface-add")) {
-            ;
+            RouterForAddInterface router = new RouterForAddInterface();
+            if (args.length < 3) {
+                System.out.println("Specify router id and subnet id.");
+                System.exit(0);
+            }
+            router.setRouterId(args[1]);
+            router.setSubnetId(args[2]);
+            RouterInterface result =
+                neutronClient.routers().addInterface(router).execute();
+            util.printJson(result);
+
         } if (command.equals("router-interface-delete")) {
             ;
         } if (command.equals("router-gateway-set")) {
@@ -227,6 +239,16 @@ public class Jneutron {
                     }
                 }
             }
+            if (routerId == null || externalNetworkId == null) {
+                System.out.println("Specify router id and external network id.");
+                System.exit(0);
+            }
+            
+            gateway.setNetworkId(externalNetworkId);
+            RouterForSetGateway router =
+                neutronClient.routers().setGateway(routerId, gateway).execute();
+            util.printJson(router);
+
 
         } if (command.equals("router-gateway-clear")) {
             ;
