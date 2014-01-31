@@ -43,6 +43,40 @@ public class Jceilometer {
     private static Jopst jopst;
     private static Utils util;
 
+    public static Ceilometer getCeilometerClient() {
+
+        return getCeilometerClient(jopst.getOsAuthUrl(),
+                                   jopst.getOsPassword(),
+                                   jopst.getOsUsername(),
+                                   jopst.getOsTenantName());
+        
+    }
+
+    public static Ceilometer getCeilometerClient(String osAuthUrl,
+                                                 String osPassword,
+                                                 String osTenantName,
+                                                 String osUsername) {
+
+        Keystone keystoneClient = new Keystone(osAuthUrl);
+
+        // Set account information, and issue an authentication request.
+        Access access = keystoneClient.tokens()
+            .authenticate(new UsernamePassword(osUsername, osPassword))
+            .withTenantName(osTenantName)
+            .execute();
+
+        String ceilometerEndpoint = KeystoneUtils
+            .findEndpointURL(access.getServiceCatalog(),
+                             "metering", null, "public");
+        if (jopst.isDebug()) {
+            System.out.println("DEBUG: " + ceilometerEndpoint);
+        }
+        // Create a Nova client object.
+        Ceilometer ceilometerClient = new Ceilometer(ceilometerEndpoint);
+        ceilometerClient.token(access.getToken().getId());
+        return ceilometerClient;
+    }
+
     public static void ceilometer(String[] args) {
         if(jopst.isDebug()) {
             System.out.println("ceilometer() called."); 
@@ -50,24 +84,7 @@ public class Jceilometer {
 
         String command = args[0];
 
-            Keystone keystoneClient = new Keystone(jopst.getOsAuthUrl());
-
-            // Set account information, and issue an authentication request.
-            Access access = keystoneClient.tokens()
-                .authenticate(new UsernamePassword(jopst.getOsUsername(),
-                                                   jopst.getOsPassword()))
-                .withTenantName(jopst.getOsTenantName())
-                .execute();
-
-            String ceilometerEndpoint = KeystoneUtils
-                .findEndpointURL(access.getServiceCatalog(),
-                                 "metering", null, "public");
-            if (jopst.isDebug()) {
-                System.out.println("DEBUG: " + ceilometerEndpoint);
-            }
-            // Create a Nova client object.
-            Ceilometer ceilometerClient = new Ceilometer(ceilometerEndpoint);
-            ceilometerClient.token(access.getToken().getId());
+        Ceilometer ceilometerClient = getCeilometerClient();
 
         if (command.equals("meter-list")) {
             try {
@@ -79,6 +96,12 @@ public class Jceilometer {
             }
 
         } else if (command.equals("statistics")) {
+
+            if (args.length < 2) {
+                System.out.println("Specify meter name");
+                System.exit(0);
+            }
+
             try {
                 List<Statistics> statistics;
                 statistics = ceilometerClient.meters().statistics(args[1]).execute();
@@ -97,7 +120,6 @@ public class Jceilometer {
             }
 
         } else if (command.equals("resource-show")) {
-            System.out.println("DEBUG resource-show");
             try {
                 Resource resource;
                 resource = ceilometerClient.resources().show(args[1]).execute();
@@ -107,6 +129,11 @@ public class Jceilometer {
             }
 
         } else if (command.equals("sample-list")) {
+            if (args.length < 2) {
+                System.out.println("Specify meter name");
+                System.exit(0);
+            }
+
             try {
                 List<Sample> samples;
                 samples = ceilometerClient.meters().show(args[1]).execute();
