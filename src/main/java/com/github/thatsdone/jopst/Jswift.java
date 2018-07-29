@@ -140,7 +140,7 @@ public class Jswift {
                 // HEAD /v1/{account}
                 if (args.length == 1) {
                     util.printJson(swiftClient.account().get());
-
+                    return;
                 // HEAD /v1/{account}/{container}
                 } else if (args.length == 2) {
                     res = swiftClient.containers().getMetadata(args[1]);
