@@ -21,17 +21,16 @@
  */
 package com.github.thatsdone.jopst;
 
-import com.woorea.openstack.keystone.Keystone;
-import com.woorea.openstack.keystone.model.Access;
-import com.woorea.openstack.keystone.model.authentication.UsernamePassword;
-import com.woorea.openstack.keystone.utils.KeystoneUtils;
+import org.openstack4j.api.OSClient.OSClientV2;
+import org.openstack4j.openstack.OSFactory;
 
-import com.woorea.openstack.swift.Swift;
-import com.woorea.openstack.swift.model.Account;
-import com.woorea.openstack.swift.model.Container;
-import com.woorea.openstack.swift.model.Object;
-import com.woorea.openstack.swift.model.ObjectDownload;
-import com.woorea.openstack.swift.model.ObjectForUpload;
+import org.openstack4j.api.storage.*;
+import org.openstack4j.model.storage.object.*;
+
+//import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+
 
 import java.lang.System;
 import java.util.List;
@@ -42,8 +41,8 @@ import java.io.FileInputStream;
 import com.github.thatsdone.jopst.Jopst;
 import com.github.thatsdone.jopst.Utils;
 
-import org.codehaus.jackson.type.TypeReference;
-import org.codehaus.jackson.map.ObjectMapper;
+//import org.codehaus.jackson.type.TypeReference;
+//import org.codehaus.jackson.map.ObjectMapper;
 
 public class Jswift {
 
@@ -51,11 +50,12 @@ public class Jswift {
     private static Utils util;
 
 
-    private static Swift getSwiftClient() {
+    private static ObjectStorageService getSwiftClient() {
 
-        Keystone keystoneClient = new Keystone(jopst.getOsAuthUrl());
+        //Keystone keystoneClient = new Keystone(jopst.getOsAuthUrl());
 
         // Set account information, and issue an authentication request.
+	/*
         Access access = keystoneClient.tokens()
             .authenticate(new UsernamePassword(jopst.getOsUsername(),
                                                    jopst.getOsPassword()))
@@ -73,6 +73,13 @@ public class Jswift {
         swiftClient.token(access.getToken().getId());
 
         return swiftClient;
+	*/
+	OSClientV2 os = OSFactory.builderV2()
+	    .endpoint(jopst.getOsAuthUrl())
+	    .credentials(jopst.getOsUsername(), jopst.getOsPassword())
+	    .tenantName(jopst.getOsTenantName())
+	    .authenticate();
+	return os.objectStorage();
     }
 
     public static void swift(String[] args) {
@@ -89,6 +96,7 @@ public class Jswift {
              * The below assumes a special version of Swift client class
              * which returns List<Container> class.
              */
+	    /*
             if (args.length == 1) {
 
                 Swift swiftClient = getSwiftClient();
@@ -113,31 +121,33 @@ public class Jswift {
                 }
 
             }
+	    */
 
         } else if (command.equals("stat")) {
 
-            Swift swiftClient = getSwiftClient();
+            ObjectStorageService swiftClient = getSwiftClient();
+	    /*
+	    SwiftAccount account = os.objectStorage().account().get();
+	    System.out.println(account);
+	    printJson(account);
+	    */
 
             try {
                 // FIXME(thatsdone):
                 Map<String, String> res = null;
 
+		//account is different from containers/objects.
                 // HEAD /v1/{account}
                 if (args.length == 1) {
-                    res = swiftClient.account()
-                        .showAccount().getResponse().headers();
+                    util.printJson(swiftClient.account().get());
 
                 // HEAD /v1/{account}/{container}
                 } else if (args.length == 2) {
-                    res = swiftClient.containers()
-                        .show(args[1]).getResponse().headers();
+                    res = swiftClient.containers().getMetadata(args[1]);
 
                 // HEAD /v1/{account}/{container}/{object}
                 } else if (args.length == 3) {
-                    res = swiftClient.containers()
-                        .container(args[1])
-                        .show(args[2])
-                        .getResponse().headers();
+                    res = swiftClient.objects().getMetadata(args[1], args[2]);
                 }
 
                 for (String key : res.keySet()) {
@@ -151,126 +161,20 @@ public class Jswift {
 
         } else if (command.equals("post")) {
 
-            Swift swiftClient = getSwiftClient();
-
-            // NOTE(thatsdone): swift post is not POST but PUT.
-            // See API references. http://api.openstack.org/
-            try {
-                Map<String, String> res = null;
-
-                // PUT /v1/{account}/{container}
-                if (args.length == 2) {
-                    res = swiftClient.containers()
-                        .create(args[1]).getResponse().headers();
-
-                // PUT /v1/{account}/{container}/{object}
-                } else if (args.length == 3) {
-                    //impossible to create a zero-sized object via post
-                    //res = swiftClient.containers()
-                    //    .container(args[1])
-                    //    .create(args[2]).getResponse().headers();
-                    return;
-					
-                }
-
-                for (String key : res.keySet()) {
-                    System.out.println(String.format("%s : %s",
-                                                     key, res.get(key)));
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            ObjectStorageService swiftClient = getSwiftClient();
 
         } else if (command.equals("delete")) {
 
-            Swift swiftClient = getSwiftClient();
-
-            try {
-                Map<String, String> res = null;
-
-                // DELETE /v1/{account}/{container}
-                if (args.length == 2) {
-                    res = swiftClient.containers()
-                        .delete(args[1]).getResponse().headers();
-
-                // DELETE /v1/{account}/{container}/{object}
-                } else if (args.length == 3) {
-                    res = swiftClient.containers()
-                        .container(args[1])
-                        .delete(args[2]).getResponse().headers();
-                }
-                for (String key : res.keySet()) {
-                    System.out.println(String.format("%s : %s",
-                                                     key, res.get(key)));
-                }
-
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            ObjectStorageService swiftClient = getSwiftClient();
 
         } else if (command.equals("upload")) {
 
-            Swift swiftClient = getSwiftClient();
-
-            try {
-                Map<String, String> res = null;
-
-                // PUT /v1/{account}/{container}/{object}
-                // Only a single file upload at a time is supported currently.
-                if (args.length >= 3) {
-
-                    ObjectForUpload upload = new ObjectForUpload();
-                    InputStream is = new FileInputStream(args[2]);
-
-                    upload.setContainer(args[1]);
-                    upload.setName(args[2]);
-                    upload.setInputStream(is);
-                    
-                    res = swiftClient.containers()
-                        .container(args[1])
-                        .upload(upload).getResponse().headers();
-
-                    for (String key : res.keySet()) {
-                        System.out.println(String.format("%s : %s",
-                                                         key, res.get(key)));
-                    }
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            ObjectStorageService swiftClient = getSwiftClient();
 
         } else if (command.equals("download")) {
 
-            Swift swiftClient = getSwiftClient();
+            ObjectStorageService swiftClient = getSwiftClient();
 
-            try {
-                Map<String, String> headers = null;
-                
-                // GET /v1/{account}/{container}/{object}
-                // Only a single file download at a time is supported currently.
-                if (args.length >= 3) {
-
-                    ObjectDownload download = null;
-
-                    download = swiftClient.containers()
-                        .container(args[1])
-                        .download(args[2]).execute();
-
-                    util.write(download.getInputStream(), args[2]);
-
-                    /*
-                    for (String key : res.keySet()) {
-                        System.out.println(String.format("%s : %s",
-                                                         key, res.get(key)));
-                    }
-                    */
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 }

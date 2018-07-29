@@ -106,7 +106,8 @@ public class Jopst {
     // Get account informatoin from environment variables.
     private static String osAuthUrl = System.getenv("OS_AUTH_URL");
     private static String osPassword = System.getenv("OS_PASSWORD");
-    private static String osTenantName = System.getenv("OS_TENANT_NAME");
+    //    private static String osTenantName = System.getenv("OS_TENANT_NAME");
+    private static String osTenantName = System.getenv("OS_PROJECT_NAME");
     private static String osUsername = System.getenv("OS_USERNAME");
 
     public static String getOsAuthUrl() {
@@ -332,7 +333,8 @@ public class Jopst {
         if (isDebug()) {
             System.out.println("OS_AUTH_URL    : " + osAuthUrl);
             System.out.println("OS_PASSWORD    : " + osPassword);
-            System.out.println("OS_TENANT_NAME : " + osTenantName);
+            //System.out.println("OS_TENANT_NAME : " + osTenantName);
+            System.out.println("OS_PROJECT_NAME : " + osTenantName);
             System.out.println("OS_USERNAME    : " + osUsername);
         }
         return subargs;

@@ -33,7 +33,8 @@ import java.io.OutputStream;
 
 import java.util.logging.*;
 
-import org.codehaus.jackson.map.ObjectMapper;
+//import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.github.thatsdone.jopst.Jopst;
 
